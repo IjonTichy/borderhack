@@ -23,8 +23,8 @@ import util.MapData;
 
 public class Game implements Runnable
 {
-    private Thread       myThread;
-    private RenderWindow gameWindow;
+    private          Thread       myThread;
+    private volatile RenderWindow gameWindow;
     private volatile Queue<Event> events;
     private volatile Lock         eventLock;
     
@@ -79,7 +79,7 @@ public class Game implements Runnable
                     {
                       case CLOSED:
                         gameWindow.close();
-                        break;
+                        break; 
                       
                       default:
                         newEvents.add(event);
