@@ -3,6 +3,7 @@ package render;
 import java.util.List;
 
 import org.jsfml.graphics.RenderWindow;
+import org.jsfml.window.ContextActivationException;
 import org.jsfml.window.event.Event;
 
 /**
@@ -14,11 +15,12 @@ import org.jsfml.window.event.Event;
 
 public abstract class I_Renderer
 {
-    protected RenderThread r_thread;
+    protected RenderThread  r_thread;
+    protected int           r_layer = 0;
     
-    abstract void render(RenderWindow win, List<Event> arrayList);
+    abstract void render(RenderWindow win, List<Event> events) throws ContextActivationException;
     
-    public void setRenderThread(RenderThread r)
+    public void attachRenderThread(RenderThread r)
     {
         r_thread = r;
     }
@@ -28,5 +30,10 @@ public abstract class I_Renderer
         RenderThread ret = r_thread;
         r_thread = null;
         return ret;
+    }
+    
+    public int getLayer()
+    {
+        return r_layer;
     }
 }

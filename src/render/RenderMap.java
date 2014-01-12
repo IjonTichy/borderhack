@@ -3,10 +3,9 @@ package render;
 import map.GameMap;
 
 import org.jsfml.graphics.*;
-import org.jsfml.system.Clock;
-import org.jsfml.system.Time;
 import org.jsfml.system.Vector2f;
 import org.jsfml.system.Vector2i;
+import org.jsfml.window.ContextActivationException;
 import org.jsfml.window.Mouse;
 import org.jsfml.window.event.Event;
 import org.jsfml.window.event.MouseWheelEvent;
@@ -15,10 +14,6 @@ import entities.Entity;
 import util.Constants;
 import util.RenderQuad;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,42 +21,19 @@ import java.util.TreeMap;
 
 public class RenderMap extends I_Renderer
 {
-    private long        render_tick;
-    private Clock       render_clock;
-    private List<Time>  render_times;
     private GameMap     render_map;
-    private static Font render_fps_font;
     
     private Vector2f    render_center;
     private float       render_zoom;
     private float       zoom_velocity;
-
-    public long getRenderTick() { return render_tick; }
     
     public RenderMap(GameMap map)
     {
-        render_clock = new Clock();
-        render_tick  = 0;
-        render_times = new ArrayList<Time>();
         render_map   = map;
-        
-        if (render_fps_font == null)
-        {
-            Path fontPath = Paths.get("fonts/VeraMoBd.ttf");
-            render_fps_font = new Font();
-            
-            try
-            {
-                render_fps_font.loadFromFile(fontPath);
-            }
-            catch (IOException e)
-            {
-                System.err.println("Could not find font \"" + fontPath.toString() + "\"");
-            }
-        }
-
         render_center = new Vector2f(0, 0);
         render_zoom   = 1;
+        
+        r_layer = Integer.MIN_VALUE;
     }
     
     // ====
@@ -71,6 +43,8 @@ public class RenderMap extends I_Renderer
     private Map<Integer, Map<Texture, VertexArray>> buildVertTree(GameMap map)
     {
         Map<Integer, Map<Texture, VertexArray>> ret = new TreeMap<Integer, Map<Texture, VertexArray>>();
+
+        long rtick = r_thread == null ? 0 : r_thread.getTick();
         
         for (Entity ent: map.getAllEntities())
         {
@@ -80,7 +54,7 @@ public class RenderMap extends I_Renderer
             int x = position.x * Constants.TILE_WIDTH;
             int y = position.y * Constants.TILE_HEIGHT;
                 
-            RenderQuad toRender = ent.render(render_tick);
+            RenderQuad toRender = ent.render(rtick);
             VertexArray newPoints = new VertexArray();
             
             for (Vertex v: toRender.points)
@@ -132,13 +106,14 @@ public class RenderMap extends I_Renderer
     private static final int   SCROLL_FACTOR  = 8;
     private static final float ZOOM_FACTOR    = 0.1f;
     private static final float ZOOM_DECAY     = 0.5f;
-    private static final float SCROLL_SECTION = 0.25f;
+    private static final float SCROLL_SECTION = 0.4f;
     private static final float ZOOM_MIN       = 0.25f;
     private static final float ZOOM_MAX       = 10.0f;
     
+    
     private void handleEvents(RenderWindow rWindow, List<Event> newEvents)
     {
-        Vector2i mousePos = Mouse.getPosition(rWindow);
+        Vector2i mousePos     = Mouse.getPosition(rWindow);
         Vector2i winSize = rWindow.getSize();
         Vector2i winCenter = new Vector2i(winSize.x / 2, winSize.y / 2);
         
@@ -152,15 +127,18 @@ public class RenderMap extends I_Renderer
             // Restrict to outer 25% of screen, scale to 1, then scale to SCROLL_FACTOR
     
             float sideAdjust = 1 - SCROLL_SECTION;
-            float sideMult   =  SCROLL_FACTOR / SCROLL_SECTION;
+            float sideMult   =     SCROLL_FACTOR / SCROLL_SECTION;
             
-            leftShift  = Math.max(leftShift  - sideAdjust, 0) * sideMult * render_zoom;
-            rightShift = Math.max(rightShift - sideAdjust, 0) * sideMult * render_zoom;
-            topShift   = Math.max(topShift   - sideAdjust, 0) * sideMult * render_zoom;
-            botShift   = Math.max(botShift   - sideAdjust, 0) * sideMult * render_zoom;
+            leftShift  = Math.max(leftShift  - sideAdjust, 0) * sideMult;
+            rightShift = Math.max(rightShift - sideAdjust, 0) * sideMult;
+            topShift   = Math.max(topShift   - sideAdjust, 0) * sideMult;
+            botShift   = Math.max(botShift   - sideAdjust, 0) * sideMult;
             
-            Vector2f newCenter = new Vector2f(render_center.x - leftShift + rightShift,
-                                              render_center.y - topShift + botShift);
+            float xShift = leftShift - rightShift;
+            float yShift = topShift  - botShift;
+            
+            Vector2f newCenter = new Vector2f(render_center.x - (xShift * render_zoom),
+                                              render_center.y - (yShift * render_zoom));
             
             render_center = newCenter;
         }
@@ -171,7 +149,7 @@ public class RenderMap extends I_Renderer
             {
                 case MOUSE_WHEEL_MOVED:
                     MouseWheelEvent m = e.asMouseWheelEvent();
-                    zoom_velocity += m.delta * ZOOM_FACTOR;
+                    zoom_velocity -= m.delta * ZOOM_FACTOR;
                     break;
                  
                 default:
@@ -195,10 +173,11 @@ public class RenderMap extends I_Renderer
         if (Math.abs(zoom_velocity) < 0.01) { zoom_velocity = 0; }
     }
     
-    // TODO: When a map format is made, have this use it
-    // as of right now, map detection is completely temporary
-    public void render(RenderWindow rWindow, List<Event> newEvents)
+    
+    public void render(RenderWindow rWindow, List<Event> newEvents) throws ContextActivationException
     {
+        rWindow.setActive(true);
+        
         View rView = mapView(rWindow);
         handleEvents(rWindow, newEvents);
         
@@ -207,6 +186,7 @@ public class RenderMap extends I_Renderer
         
         rWindow.setView(rView);
         rWindow.clear(Color.BLUE);
+        
         
         for (Map.Entry<Integer, Map<Texture, VertexArray>> layerEntry: renderMap.entrySet())
         {
@@ -222,75 +202,7 @@ public class RenderMap extends I_Renderer
             }
         }
         
-        Time curTime = render_clock.getElapsedTime();
-        float tickDiff_f;
-        
-        if (render_times.size() > 0)
-        {
-            Time prevTime = render_times.get(render_times.size()-1);
-            tickDiff_f = curTime.asMilliseconds() - prevTime.asMilliseconds();
-        }
-        else
-        {
-            tickDiff_f = curTime.asMilliseconds();
-        }
-        
-        int tickDiff = (int)tickDiff_f;
-        
-        if (render_times.size() == Constants.MAX_RENDERTIMES)
-        {
-            int i;
-            
-            for (i = 1; i < Constants.MAX_RENDERTIMES; i++)
-            {
-                render_times.set(i-1, render_times.get(i));
-            }
-            
-            render_times.set(Constants.MAX_RENDERTIMES-1, curTime);
-        }
-        else
-        {
-            render_times.add(curTime);
-        }
-        
-        int sizeOver = render_times.size() - Constants.MAX_RENDERTIMES;
-        if (sizeOver > 0) { render_times = render_times.subList(sizeOver, render_times.size()); }
-        
-        // This is purely for display; the actual time between frames is below
-        if (Constants.DRAW_FPS && render_fps_font != null && render_times.size() > 0)
-        {
-            float curFPS = -1, prevFPS, frameTime = 0;
-            int left  = Math.max(0, render_times.size() - (Constants.FPS_TIMESUSED + 1));
-            int right = render_times.size();
-            int fpsCount = 0;
-            
-            List<Time> fpsSlice = render_times.subList(left, right);
-            
-            for (Time t: fpsSlice)
-            {
-                if (t == null) { continue; }
-                
-                prevFPS = curFPS;
-                curFPS = t.asSeconds();
-                    
-                if (prevFPS != -1)
-                {
-                    frameTime += (curFPS - prevFPS);
-                    fpsCount++;
-                }
-            }
-            
-            frameTime /= fpsCount;
-            
-            rWindow.setView(rWindow.getDefaultView());
-            
-            Text fps = new Text(Integer.toString((int)(1 / frameTime)) + " (" + Long.toString(render_tick) + ")", render_fps_font);
-            fps.setPosition(new Vector2f(10, 10));
-            
-            rWindow.draw(fps);
-        }
-        
-        render_tick += tickDiff;
         rWindow.setView(oldView); // avoid side effects if possible
+        rWindow.setActive(false);
     }
 }

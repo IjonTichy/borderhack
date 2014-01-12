@@ -3,9 +3,12 @@ package render;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.jsfml.graphics.RenderWindow;
 import org.jsfml.system.Clock;
+import org.jsfml.window.ContextActivationException;
 import org.jsfml.window.event.Event;
 
 /**
@@ -23,18 +26,52 @@ import org.jsfml.window.event.Event;
 
 public class RenderThread extends Thread
 {
-    private boolean             keep_rendering;
-    private long                r_tick;
+    private volatile boolean    keep_rendering;
+    private          long       r_tick;
     
-    private RenderWindow        r_window;
-    private List<I_Renderer>    r_renderers;
-    private Queue<Event>        r_newevents;
+    private RenderWindow                            r_window;
+    private SortedMap<Integer, List<I_Renderer>>    r_renderers;
+    private Queue<Event>                            r_newevents;
     
     public RenderThread(RenderWindow window, Queue<Event> events)
     {
         r_window   = window;
         r_newevents = events;
+        r_renderers = new TreeMap<Integer, List<I_Renderer>>();
     }
+    
+    public long getTick() { return r_tick; }
+    
+    public void addRenderer(I_Renderer r)
+    {
+        removeRenderer(r);
+        
+        int layer = r.getLayer();
+        
+        List<I_Renderer> layerArray = r_renderers.get(layer);
+        
+        if (layerArray == null)
+        {
+            layerArray = new ArrayList<I_Renderer>();
+            r_renderers.put(layer, layerArray);
+        }
+        
+        layerArray.add(r);
+    }
+    
+    public boolean removeRenderer(I_Renderer r)
+    {
+        boolean removed = false;
+        
+        for (List<I_Renderer> layer: r_renderers.values())
+        {
+            removed |= layer.remove(r);
+        }
+        
+        return removed;
+    }
+    
+    
     
     public void run()
     {
@@ -54,9 +91,19 @@ public class RenderThread extends Thread
                 newEvents.add(r_newevents.poll());
             }
                 
-            for (I_Renderer r: r_renderers)
+            for (List<I_Renderer> rends: r_renderers.values())
             {
-                r.render(r_window, new ArrayList<Event>(newEvents));
+                for (I_Renderer r: rends)
+                {
+                    try
+                    {
+                        r.render(r_window, new ArrayList<Event>(newEvents));
+                    }
+                    catch (ContextActivationException e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
             }
             
             r_window.display();

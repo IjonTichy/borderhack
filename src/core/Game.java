@@ -1,19 +1,15 @@
 package core;
 
-import java.util.ArrayList;
-import java.util.ConcurrentModificationException;
-import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.locks.Lock;
+import instances.MapInstance;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.BlockingQueue;
 import map.GameMap;
 
 import org.jsfml.graphics.Color;
 import org.jsfml.graphics.RenderWindow;
-import org.jsfml.graphics.View;
-import org.jsfml.system.Vector2i;
 import org.jsfml.window.ContextActivationException;
-import org.jsfml.window.Keyboard;
 import org.jsfml.window.event.Event;
 
 import render.RenderMap;
@@ -23,25 +19,25 @@ import util.MapData;
 
 public class Game implements Runnable
 {
-    private          Thread       myThread;
-    private volatile RenderWindow gameWindow;
-    private volatile Queue<Event> events;
-    private volatile Lock         eventLock;
+    private          Thread               myThread;
+    private volatile RenderWindow         gameWindow;
+    private volatile BlockingQueue<Event> events;
     
-    public Game(RenderWindow gamewin, Queue<Event> evQueue, Lock evLock)
+    public Game(RenderWindow gamewin, BlockingQueue<Event> evQueue)
     {
         gameWindow = gamewin;
         myThread   = new Thread(this, "gameThread");
         events     = evQueue;
-        eventLock  = evLock;
         myThread.start();
     }
     
     public void run()
     {
-        GameMap testmap = new GameMap("test map");
-        RenderMap mapRender = new RenderMap(testmap);
         List<Event> newEvents = new ArrayList<Event>();
+        
+        // TESTING
+        
+        GameMap testmap = new GameMap("test map");
         
         
         int x, y;
@@ -63,46 +59,13 @@ public class Game implements Runnable
             }
         }
         
+        RenderMap mapRender = new RenderMap(testmap);
+        
+        MapInstance testInstance = new MapInstance(gameWindow, events, testmap);
+        
         // END TESTS
         
-        
-        while(gameWindow.isOpen())
-        {
-            newEvents.clear();
-            eventLock.lock();
-            
-            try
-            {
-                for(Event event : events)
-                {
-                    switch (event.type)
-                    {
-                      case CLOSED:
-                        gameWindow.close();
-                        break; 
-                      
-                      default:
-                        newEvents.add(event);
-                        break;
-                    }
-                }
-                
-                events.clear();
-            }
-            finally
-            {
-                eventLock.unlock();
-            }
-
-            setActive(true);
-            
-            gameWindow.clear(Color.BLACK);
-            mapRender.render(gameWindow, newEvents);
-
-            gameWindow.display();
-            
-            setActive(false);
-        }
+        testInstance.run();
     }
     
     private void setActive(boolean mode)
