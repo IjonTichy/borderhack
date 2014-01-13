@@ -5,8 +5,14 @@ public class TestFloor extends Entity
     protected void defaults()
     {
         super.defaults();
-        
-        myTexPath = "img/shitfloor.png";
         myLayer   = -1;
+    }
+    
+    public int getID() { return 1; }
+    public String getTexturePath() { return "img/shitfloor.png"; }
+    
+    protected void init()
+    {
+        return;
     }
 }

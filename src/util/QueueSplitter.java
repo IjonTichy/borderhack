@@ -10,6 +10,7 @@ public class QueueSplitter<T> extends Thread
     private boolean keep_running;
     private int     poll_delay;
     
+    @SuppressWarnings("unchecked") // unavoidable warning
     public QueueSplitter(BlockingQueue<T> inQueue, int queueCount, int pollTime)
     {
         if (queueCount < 1)

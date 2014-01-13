@@ -11,20 +11,16 @@ import java.util.SortedMap;
 
 import modes.Mode;
 
-import org.jsfml.system.Vector2f;
 import org.jsfml.system.Vector2i;
 
-import render.Animation;
 import entities.Entity;
 import util.Constants;
 import util.DelayedAction;
-import util.MapData;
 
 public class GameMap
 {
     private Map<Entity, MapData>    map_entities;
     private Map<Vector2i, MapBlock> map_blocks;
-    private Map<Animation, Vector2f> render_animations;
     private String map_name;
     
     private long map_tick;
@@ -83,7 +79,7 @@ public class GameMap
             else { return false; }
         }
         
-        map_entities.put(ent, pos.copy());
+        map_entities.put(ent, new MapData(pos));
         return true;
     }
     
@@ -187,32 +183,6 @@ public class GameMap
             e.printStackTrace();
         }
     }
-
-    // ====
-    // == ANIMATION CONTROL
-    // ====
-    
-    public void addAnimation(Animation anim)
-    {
-        addAnimation(anim, new Vector2f(0, 0));
-    }
-    
-    public void addAnimation(Animation anim, Vector2i coord)
-    {
-        addAnimation(anim, new Vector2f(coord.x, coord.y));
-    }
-    
-    public void addAnimation(Animation anim, Vector2f coord)
-    {
-        if (render_animations.get(anim) != null) { return; }
-        
-        render_animations.put(anim, coord);
-    }
-    
-    public void removeAnimation(Animation anim)
-    {
-        render_animations.remove(anim);
-    }
     
     // ====
     // == BLOCKMAP CONTROL
@@ -238,13 +208,13 @@ public class GameMap
         if (block.entCount() == 0) { map_blocks.remove(block); }
     }
     
-    private void removeFromBlocks(Entity ent)
+    private void removeFromBlockmap(Entity ent)
     {
         Collection<MapBlock> blocks = map_blocks.values();
         for (MapBlock block: blocks) { removeFromBlock(ent, block); }
     }
     
-    private void calcBlocks(Entity ent)
+    private void addToBlockmap(Entity ent)
     {
         MapData entPos = map_entities.get(ent);
         if (entPos == null) { return; }
@@ -268,11 +238,12 @@ public class GameMap
         }
     }
     
+    @SuppressWarnings("unused")
     private void recalcBlocks(Entity ent)
     {
         if (!map_entities.containsKey(ent)) { return; }
         
-        removeFromBlocks(ent);
-        calcBlocks(ent);
+        removeFromBlockmap(ent);
+        addToBlockmap(ent);
     }
 }

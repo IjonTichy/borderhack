@@ -2,32 +2,57 @@ package entities;
 
 import java.io.IOException;
 
-import org.jsfml.graphics.Color;
 import org.jsfml.graphics.Texture;
-import org.jsfml.graphics.Vertex;
-import org.jsfml.graphics.VertexArray;
-import org.jsfml.system.Vector2f;
 import org.jsfml.system.Vector2i;
 
+import render.RenderQuad;
 import util.Constants;
 import util.TexStorage;
 import util.TextureAlreadyInException;
-import util.RenderQuad;
 
-public class Entity
+abstract public class Entity
 {
     protected static long E_ID_Counter = 0;
 
-    protected long    myID;
     protected Texture myTexture;
-    protected String  myTexPath;
     protected int     myLayer;
     protected int     mySizeX;
     protected int     mySizeY;
     
+    /**
+     * Any sub-entity logic should go here. super.init() is not necessary here;
+     * subclasses might have it differently.
+     * 
+     * @param       nothing.
+     * @return      nothing.
+     */
+    abstract protected void init();
+    
+    /**
+     * Entity ID goes here.
+     * If this does not return a constant value, you have only yourself to blame
+     * when everything starts breaking horribly.
+     * 
+     * @return entity ID, as integer
+     */
+    abstract public int getID();
+    
+    /**
+     * Store texture path here.
+     * @return
+     */
+    public abstract String  getTexturePath();
+
+
+    public Vector2i getSize()
+    {
+        return new Vector2i(this.mySizeX, this.mySizeY);
+    }
+    
+    
+    
     public Entity()
     {
-        myID = E_ID_Counter++;
         defaults();
         loadTexture(true);
         init();
@@ -44,24 +69,10 @@ public class Entity
      */
     protected void defaults()
     {
-        myTexPath = "img/default2.png";
         myLayer   = 0;
         mySizeX   = 1;
         mySizeY   = 1;
     }
-
-    
-    /**
-     * Any sub-entity logic should go here. super.init() is not necessary here;
-     * subclasses might have it differently.
-     * 
-     * @param       nothing.
-     * @return      nothing.
-     */
-    protected void init()
-    {
-    }
-
     
     /**
      * Grabs and loads the entity's texture according to its texture path. Refers
@@ -75,9 +86,12 @@ public class Entity
     
     protected void loadTexture(boolean smooth)
     {
-        try { myTexture = TexStorage.loadTexturePath(myTexPath); }
-        catch (IOException e) { myTexture = null; }
-        catch (TextureAlreadyInException e) { myTexture = TexStorage.getTexture(myTexPath); }
+        try { myTexture = TexStorage.loadTexturePath(getTexturePath()); }
+        catch (IOException e)
+        {
+            System.err.println("ERROR: Could not load image \"" + getTexturePath() + "\"");
+        }
+        catch (TextureAlreadyInException e) { myTexture = TexStorage.getTexture(getTexturePath()); }
         
         if (myTexture != null)
         {
@@ -103,66 +117,23 @@ public class Entity
     
     public RenderQuad render(long renderTick)
     {
-        VertexArray retArray = new VertexArray();
-        Vector2f    tmpCoord;
-        Vector2f    texCoord;
-        
-        Vector2i    texSize = myTexture.getSize();
-        Vector2f    center  = new Vector2f(Constants.TILE_WIDTH / 2, Constants.TILE_HEIGHT / 2);
-        float xoff = texSize.x / 2;
-        float yoff = texSize.y / 2;
-        
-
-        tmpCoord = new Vector2f(center.x - xoff, center.y - yoff);
-        texCoord = new Vector2f(0, 0);
-        retArray.add(new Vertex(tmpCoord, Color.WHITE, texCoord));
-        
-        tmpCoord = new Vector2f(center.x - xoff, center.y + yoff);
-        texCoord = new Vector2f(0, texSize.y);
-        retArray.add(new Vertex(tmpCoord, Color.WHITE, texCoord));
-        
-        tmpCoord = new Vector2f(center.x + xoff, center.y + yoff);
-        texCoord = new Vector2f(texSize.x, texSize.y);
-        retArray.add(new Vertex(tmpCoord, Color.WHITE, texCoord));
-        
-        tmpCoord = new Vector2f(center.x + xoff, center.y - yoff);
-        texCoord = new Vector2f(texSize.x, 0);
-        retArray.add(new Vertex(tmpCoord, Color.WHITE, texCoord));
-        
-        RenderQuad ret = new RenderQuad(myTexture, myLayer, retArray);
-        return ret;
+        int      sizeX = Constants.TILE_WIDTH * mySizeX;
+        int      sizeY = Constants.TILE_HEIGHT * mySizeY;
+        Vector2i size  = new Vector2i(sizeX, sizeY);
+        return RenderQuad.renderAnchored(myTexture, size, RenderQuad.anchors.CENTER, myLayer);
     }
     
-    /* (non-Javadoc)
-     * @see java.lang.Object#hashCode()
-     */
-    @Override
     public int hashCode()
     {
         final int prime = 31;
         int result = 1;
-        result = prime * result + (int) (myID ^ (myID >>> 32));
+        result = prime * result + (int) (getID() ^ (getID() >>> 32));
         return result;
     }
 
-    /* (non-Javadoc)
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
-    @Override
     public boolean equals(Object obj)
     {
         if (this == obj) { return true; }
-        if (obj == null) { return false; }
-        if (getClass() != obj.getClass()) { return false; }
-        
-        Entity other = (Entity) obj;
-        
-        if (myID != other.myID) { return false; }
-        return true;
-    }
-
-    public Vector2i getSize()
-    {
-        return new Vector2i(this.mySizeX, this.mySizeY);
+        return false;
     }
 }

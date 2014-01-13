@@ -1,4 +1,4 @@
-package util;
+package map;
 
 /**
  * Stores the X and Y position of an Entity.
@@ -24,8 +24,9 @@ public class MapData
         this.y = y;
     }
     
-    public MapData copy()
+    public MapData(MapData m)
     {
-        return new MapData(x, y);
+        this.x = m.x;
+        this.y = m.y;
     }
 }

@@ -2,20 +2,17 @@ package core;
 
 import instances.MapInstance;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.BlockingQueue;
-import map.GameMap;
 
-import org.jsfml.graphics.Color;
+import map.GameMap;
+import map.MapData;
+
 import org.jsfml.graphics.RenderWindow;
-import org.jsfml.window.ContextActivationException;
 import org.jsfml.window.event.Event;
 
-import render.RenderMap;
 import entities.Entity;
 import entities.TestFloor;
-import util.MapData;
+import entities.TestWall;
 
 public class Game implements Runnable
 {
@@ -32,11 +29,7 @@ public class Game implements Runnable
     }
     
     public void run()
-    {
-        List<Event> newEvents = new ArrayList<Event>();
-        
-        // TESTING
-        
+    {    
         GameMap testmap = new GameMap("test map");
         
         
@@ -47,7 +40,7 @@ public class Game implements Runnable
             for (y = 0; y < 5; y++)
             {
                 MapData testMD  = new MapData(x, y);
-                Entity  testEnt = new Entity();
+                Entity  testEnt = new TestWall();
                 
                 testmap.addToMap(testEnt, testMD);
                 
@@ -59,18 +52,10 @@ public class Game implements Runnable
             }
         }
         
-        RenderMap mapRender = new RenderMap(testmap);
-        
         MapInstance testInstance = new MapInstance(gameWindow, events, testmap);
         
         // END TESTS
         
         testInstance.run();
-    }
-    
-    private void setActive(boolean mode)
-    {
-        try { gameWindow.setActive(mode); }
-        catch (ContextActivationException e) {}
     }
 }

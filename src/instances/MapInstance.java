@@ -1,6 +1,7 @@
 package instances;
 
 
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
 import org.jsfml.graphics.RenderWindow;
@@ -14,6 +15,7 @@ import map.GameMap;
  */
 public class MapInstance extends I_Instance
 {
+    @SuppressWarnings("unused") // I am going to use it faggot
     private GameMap my_map;
     
     public MapInstance(RenderWindow window, BlockingQueue<Event> events, GameMap map)
@@ -26,40 +28,8 @@ public class MapInstance extends I_Instance
         addFPSCounter();
     }
     
-    public I_Instance run()
+    public I_Instance tick(List<Event> newEvents)
     {
-        initRun();
-        
-        
-        while (i_window.isOpen())
-        {
-            for(Event event : i_eventsForGame)
-            {
-                System.out.println("GAME EVENT: " + event);
-                
-                switch (event.type)
-                {
-                  case CLOSED:
-                    i_window.close();
-                    break; 
-                  
-                  default:
-                    break;
-                }
-            }
-            
-            try
-            {
-                Thread.sleep(10);
-            }
-            catch (InterruptedException e)
-            {
-                break;
-            }
-        }
-        
-        endRun();
-        
-        return null;
+        return this;
     }
 }

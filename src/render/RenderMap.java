@@ -12,7 +12,6 @@ import org.jsfml.window.event.MouseWheelEvent;
 
 import entities.Entity;
 import util.Constants;
-import util.RenderQuad;
 
 import java.util.HashMap;
 import java.util.List;
@@ -47,7 +46,7 @@ public class RenderMap extends I_Renderer
         long rtick = r_thread == null ? 0 : r_thread.getTick();
         
         for (Entity ent: map.getAllEntities())
-        {
+        {   
             if (ent == null) { continue; }  // dunno how that happened but okay
             
             Vector2i position = map.getPosition(ent);
@@ -174,9 +173,10 @@ public class RenderMap extends I_Renderer
     }
     
     
-    public void render(RenderWindow rWindow, List<Event> newEvents) throws ContextActivationException
+    public void render(RenderWindow rWindow, List<Event> newEvents)
     {
-        rWindow.setActive(true);
+        try { rWindow.setActive(true); }
+        catch (ContextActivationException e) { return; } // window closed
         
         View rView = mapView(rWindow);
         handleEvents(rWindow, newEvents);
@@ -203,6 +203,8 @@ public class RenderMap extends I_Renderer
         }
         
         rWindow.setView(oldView); // avoid side effects if possible
-        rWindow.setActive(false);
+        
+        try { rWindow.setActive(false); }
+        catch (ContextActivationException e) { return; } // window closed
     }
 }

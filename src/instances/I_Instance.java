@@ -1,7 +1,8 @@
 package instances;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import org.jsfml.graphics.RenderWindow;
 import org.jsfml.window.ContextActivationException;
@@ -37,8 +38,6 @@ abstract public class I_Instance
     protected BlockingQueue<Event> i_eventsIn;
     protected BlockingQueue<Event> i_eventsForGame;
     protected BlockingQueue<Event> i_eventsForRenderer;
-    
-    abstract public I_Instance run();
     
     protected void initVars(RenderWindow window, BlockingQueue<Event> events)
     {
@@ -85,4 +84,55 @@ abstract public class I_Instance
         catch (ContextActivationException e) {}
     }
     
+    /**
+     * Run an instance.
+     * @return the next I_Instance that should be run.
+     */
+    
+    public I_Instance run()
+    {
+        ArrayList<Event> newEvents = new ArrayList<Event>();
+        I_Instance nextInstance = null;
+        
+        initRun();
+        
+        while (i_window.isOpen())
+        {
+            newEvents.clear();
+
+            for(Event event : i_eventsForGame)
+            {
+                switch (event.type)
+                {
+                  case CLOSED:
+                    i_window.close();
+                    break;
+                  
+                  default:
+                    newEvents.add(event);
+                    break;
+                }
+            }
+            
+            i_eventsForGame.clear();
+            
+            nextInstance = tick(newEvents);
+        }
+        
+        endRun();
+        
+        return nextInstance;
+    }
+    
+    /**
+     * Instance tick. Basic event handling is already handled in the run loop;
+     * this may concern itself only with its own behaviour.
+     * It should not loop; it gets called periodically.
+     * 
+     * @param newEvents     New events to handle. Independent of the renderer's events.
+     * 
+     * @return an I_Instance, which is either null (to end the game), itself
+     *          (to continue execution), or a new instance (to use instead)
+     */
+    abstract protected I_Instance tick(List<Event> newEvents);
 }

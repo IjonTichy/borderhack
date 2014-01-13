@@ -12,4 +12,5 @@ public class Constants
     public static final int BLOCK_SIZE      = 64;
     public static final int MAX_RENDERTIMES = 60;
     public static final int FPS_TIMESUSED   = 10;
+    public static final int INSTANCE_LIMIT  = 120;
 }

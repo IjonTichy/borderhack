@@ -10,7 +10,8 @@ import org.jsfml.window.event.Event;
  * Renderer interface. Any objects implementing this are expected to be renderers
  * that act in compliance with a RenderThread; that is, its render method shall
  * not loop. State can be saved inside the renderer itself.
- *
+ * 
+ * <p><b>DO NOT TOUCH GAME STATE.</b> That is a can of worms no one wants to open.</p>
  */
 
 public abstract class I_Renderer
