@@ -1,5 +1,6 @@
 package core;
 
+import instances.I_Instance;
 import instances.MapInstance;
 
 import java.util.concurrent.BlockingQueue;
@@ -19,6 +20,7 @@ public class Game implements Runnable
     private          Thread               myThread;
     private volatile RenderWindow         gameWindow;
     private volatile BlockingQueue<Event> events;
+    private volatile boolean              endedGame;
     
     public Game(RenderWindow gamewin, BlockingQueue<Event> evQueue)
     {
@@ -52,10 +54,17 @@ public class Game implements Runnable
             }
         }
         
-        MapInstance testInstance = new MapInstance(gameWindow, events, testmap);
+        I_Instance gameInstance = new MapInstance(gameWindow, events, testmap);
         
         // END TESTS
         
-        testInstance.run();
+        while (gameInstance != null)
+        {
+            gameInstance = gameInstance.run();
+        }
+        
+        endedGame = true;
     }
+    
+    public boolean endedGame() { return this.endedGame; }
 }

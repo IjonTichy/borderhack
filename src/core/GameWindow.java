@@ -38,16 +38,19 @@ public class GameWindow
 
 
         gamewin.setActive(false);
-        @SuppressWarnings("unused")   // it is used you cuntwagon, just go with me
         Game   game = new Game(gamewin, evQueue);
         
-        while (gamewin.isOpen())
+        while (!game.endedGame())
         {
-            Event nextEvent = gamewin.waitEvent();
+            Event nextEvent = gamewin.pollEvent();
 
             if (nextEvent != null) { evQueue.add(nextEvent); }
-            if (nextEvent.type == Event.Type.CLOSED) { break; }
+            
+            try { Thread.sleep(0, 1000); }
+            catch (InterruptedException e) { /* I don't give a shit */ }
         }
+        
+        gamewin.close();
     }
     
 }

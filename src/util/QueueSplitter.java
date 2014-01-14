@@ -3,12 +3,13 @@ package util;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class QueueSplitter<T> extends Thread
+public class QueueSplitter<T> implements Runnable
 {
     private BlockingQueue<T> recieving_queue;
     private BlockingQueue<T>[]  split_queues;
     private boolean keep_running;
     private int     poll_delay;
+    private Thread  my_thread;
     
     @SuppressWarnings("unchecked") // unavoidable warning
     public QueueSplitter(BlockingQueue<T> inQueue, int queueCount, int pollTime)
@@ -21,12 +22,25 @@ public class QueueSplitter<T> extends Thread
         recieving_queue = inQueue;
         split_queues    = new BlockingQueue[queueCount];
         poll_delay      = Math.max(0, pollTime);
+        my_thread       = null;
         
         int i;
         for (i = 0; i < queueCount; i++)
         {
             split_queues[i] = new LinkedBlockingQueue<T>();
         }
+    }
+    
+    public boolean start()
+    {
+        if (my_thread == null || !my_thread.isAlive())
+        {
+            my_thread = new Thread(this);
+            my_thread.start();
+            return true;
+        }
+        
+        return false;
     }
     
     public void run()

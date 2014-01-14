@@ -90,7 +90,7 @@ public class RenderMap extends I_Renderer
     
     private View mapView(RenderWindow w)
     {
-        View r = new View();
+        RenderView r = new RenderView();
         
         Vector2i winSize = w.getSize();
         r.setSize(winSize.x, winSize.y);
@@ -112,9 +112,9 @@ public class RenderMap extends I_Renderer
     
     private void handleEvents(RenderWindow rWindow, List<Event> newEvents)
     {
-        Vector2i mousePos     = Mouse.getPosition(rWindow);
-        Vector2i winSize = rWindow.getSize();
-        Vector2i winCenter = new Vector2i(winSize.x / 2, winSize.y / 2);
+        Vector2i mousePos   = Mouse.getPosition(rWindow);
+        Vector2i winSize    = rWindow.getSize();
+        Vector2i winCenter  = new Vector2i(winSize.x / 2, winSize.y / 2);
         
         if (!(mousePos.x < 0 || mousePos.x > winSize.x || mousePos.y < 0 || mousePos.y > winSize.y))
         {

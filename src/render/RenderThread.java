@@ -24,23 +24,29 @@ import org.jsfml.window.event.Event;
  *      from the event thread.</p>
  */
 
-public class RenderThread extends Thread
+public class RenderThread implements Runnable
 {
-    private volatile boolean    keep_rendering;
+    private volatile boolean    is_rendering   = false;
+    private volatile boolean    stop_rendering = false;
     private          long       r_tick;
     
     private RenderWindow                            r_window;
     private SortedMap<Integer, List<I_Renderer>>    r_renderers;
     private Queue<Event>                            r_newevents;
     
+    private Thread  r_mythread;
+    
     public RenderThread(RenderWindow window, Queue<Event> events)
     {
-        r_window   = window;
+        r_window    = window;
         r_newevents = events;
         r_renderers = new TreeMap<Integer, List<I_Renderer>>();
+        r_mythread  = null;
+        r_tick      = 0;
     }
     
     public long getTick() { return r_tick; }
+    public void resetTickCounter() { r_tick = 0; }
     
     public void addRenderer(I_Renderer r)
     {
@@ -71,18 +77,30 @@ public class RenderThread extends Thread
         return removed;
     }
     
+
     
+    public boolean start()
+    {
+        if (r_mythread == null || !r_mythread.isAlive())
+        {
+            r_mythread = new Thread(this);
+            r_mythread.start();
+            return true;
+        }
+        
+        return false;
+    }
     
     public void run()
     {
-        if (keep_rendering) { return; }
+        if (is_rendering) { return; }
+        is_rendering = true;
         
-        r_tick = 0;
-        keep_rendering = true;
         List<Event> newEvents = new ArrayList<Event>();
         Clock renderClock = new Clock();
+        float lastTime, curTime = 0;
         
-        while (keep_rendering)
+        while (!stop_rendering)
         {
             newEvents.clear();
             
@@ -107,13 +125,19 @@ public class RenderThread extends Thread
             }
             
             r_window.display();
-            r_tick = (long)(renderClock.getElapsedTime().asMilliseconds());
+            
+            lastTime = curTime;
+            curTime = renderClock.getElapsedTime().asSeconds();
+            r_tick += (long)((curTime - lastTime) * 1000);
         }
+        
+        is_rendering = false;
+        stop_rendering = false;
     }
     
     // Would be named stop, but that's a thread method
     public void end()
     {
-        keep_rendering = false;
+        stop_rendering = true;
     }
 }

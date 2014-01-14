@@ -3,5 +3,6 @@ bin/*
 .project
 .settings/*
 *.jar
+hs_err_*.log
 
 !jsfml/jsfml.jar

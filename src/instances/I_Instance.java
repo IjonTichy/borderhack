@@ -12,6 +12,7 @@ import render.FPSRenderer;
 import render.I_Renderer;
 import render.RenderThread;
 import util.Constants;
+import util.ExitInstanceLoop;
 import util.QueueSplitter;
 
 /**
@@ -50,12 +51,22 @@ abstract public class I_Instance
         i_renderer          = new RenderThread(window, i_eventsForRenderer);
     }
     
-    protected void initRun()
+    protected boolean initRun()
     {
         setActive(false);
         i_eventsIn.clear();
-        i_renderer.start();
-        i_eventTee.start();
+        i_eventsForGame.clear();
+        i_eventsForRenderer.clear();
+        boolean rStarted = i_renderer.start();
+        boolean qStarted = i_eventTee.start();
+        
+        if (!(rStarted && qStarted))   
+        {
+            endRun();
+            return false;
+        }
+        
+        return true;
     }
     
     protected void endRun()
@@ -92,36 +103,45 @@ abstract public class I_Instance
     public I_Instance run()
     {
         ArrayList<Event> newEvents = new ArrayList<Event>();
-        I_Instance nextInstance = null;
+        I_Instance nextInstance = this;
         
-        initRun();
-        
-        while (i_window.isOpen())
-        {
-            newEvents.clear();
-
-            for(Event event : i_eventsForGame)
-            {
-                switch (event.type)
-                {
-                  case CLOSED:
-                    i_window.close();
-                    break;
-                  
-                  default:
-                    newEvents.add(event);
-                    break;
-                }
-            }
-            
-            i_eventsForGame.clear();
-            
-            nextInstance = tick(newEvents);
+        while (!initRun())
+        { 
+            try { Thread.sleep(10); }
+            catch (InterruptedException e) { /* don't care */ }
         }
+        
+        try
+        {
+            while (i_window.isOpen() && nextInstance == this)
+            {
+                newEvents.clear();
+    
+                for(Event event : i_eventsForGame)
+                {
+                    switch (event.type)
+                    {
+                      case CLOSED:
+                        nextInstance = null;
+                        throw new ExitInstanceLoop();
+                      
+                      default:
+                        newEvents.add(event);
+                        break;
+                    }
+                }
+                
+                i_eventsForGame.clear();
+                
+                nextInstance = tick(newEvents);
+            }
+        }
+        catch (ExitInstanceLoop e) {}
         
         endRun();
         
         return nextInstance;
+        //return nextInstance;
     }
     
     /**

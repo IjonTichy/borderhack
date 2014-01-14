@@ -8,6 +8,7 @@ import org.jsfml.graphics.TextureCreationException;
 import org.jsfml.system.Vector2i;
 
 import render.RenderQuad;
+import util.NegativeTickException;
 import util.TexStorage;
 import util.TextureAlreadyInException;
 
@@ -15,6 +16,8 @@ abstract public class Animation
 {
     protected long              a_starttick;
     protected List<Texture>     a_frames;
+    protected int               a_frameticks;
+    protected boolean           a_loop;
     
     public Animation()
     {
@@ -27,7 +30,20 @@ abstract public class Animation
     
     protected void defaults()
     {
-        a_starttick = 0;
+        a_starttick     = 0;
+        a_frameticks    = 250;
+        a_loop          = false;
+    }
+    
+    protected int getAnimTicks()
+    {
+        return a_frameticks * a_frames.size();
+    }
+    
+    protected void setStartTick(long tick) throws NegativeTickException
+    {
+        if (tick < 0) { throw new NegativeTickException(); }
+        a_starttick = tick;
     }
     
     protected void loadFrames()
@@ -55,6 +71,13 @@ abstract public class Animation
     
     public RenderQuad render(long tick, AnimData a)
     {
+        long actualTick = tick - a_starttick;
+        
+        if (actualTick >= getAnimTicks() && !a_loop)
+        {
+            return null;
+        }
+        
         Vector2i size   = getAnimSize();
         return RenderQuad.renderAnchored(a_frames.get(0), size, RenderQuad.anchors.CENTER, a.layer);
     }
