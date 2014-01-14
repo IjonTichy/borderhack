@@ -216,7 +216,6 @@ public class RenderMap extends I_Renderer
         
         render_zoom *= zoommod;
         render_zoom = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, render_zoom));
-        System.out.println(render_zoom);
 
         View curView = mapView(rWindow);
         Vector2f newMouse = rWindow.mapPixelToCoords(mousePos, curView);
