@@ -35,9 +35,14 @@ abstract public class Animation
         a_loop          = false;
     }
     
-    protected int getAnimTicks()
+    public int getAnimTicks()
     {
         return a_frameticks * a_frames.size();
+    }
+    
+    public int getAnimFrameCount()
+    {
+        return a_frames.size();
     }
     
     protected void setStartTick(long tick) throws NegativeTickException
@@ -78,8 +83,11 @@ abstract public class Animation
             return null;
         }
         
+        long unwrappedFrame = actualTick / a_frameticks;
+        int  wrappedFrame = (int)(unwrappedFrame % getAnimFrameCount());
+        
         Vector2i size   = getAnimSize();
-        return RenderQuad.renderAnchored(a_frames.get(0), size, RenderQuad.anchors.CENTER, a.layer);
+        return RenderQuad.renderAnchored(a_frames.get(wrappedFrame), size, RenderQuad.anchors.CENTER, a.layer);
     }
 
     @Override

@@ -2,5 +2,5 @@ package util;
 
 public class ExitInstanceLoop extends Exception
 {
-    final long serialVersionUID = -8053825328397182800L;
+    private static final long serialVersionUID = -749352114753612790L;
 }

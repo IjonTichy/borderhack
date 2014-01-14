@@ -71,7 +71,7 @@ abstract public class I_Instance
     
     protected void endRun()
     {
-        i_renderer.end();
+        i_renderer.stop();
         i_eventTee.end();
     }
     
@@ -122,8 +122,8 @@ abstract public class I_Instance
                     switch (event.type)
                     {
                       case CLOSED:
-                        nextInstance = null;
-                        throw new ExitInstanceLoop();
+                        quit();
+                        break;
                       
                       default:
                         newEvents.add(event);
@@ -136,7 +136,10 @@ abstract public class I_Instance
                 nextInstance = tick(newEvents);
             }
         }
-        catch (ExitInstanceLoop e) {}
+        catch (ExitInstanceLoop e)
+        {
+            nextInstance = null;
+        }
         
         endRun();
         
@@ -155,4 +158,13 @@ abstract public class I_Instance
      *          (to continue execution), or a new instance (to use instead)
      */
     abstract protected I_Instance tick(List<Event> newEvents);
+    
+    /**
+     * Runs when the close button is hit. By default, simply throws ExitInstanceLoop.
+     * @throws ExitInstanceLoop     this is how you tell the instance to exit
+     */
+    protected void quit() throws ExitInstanceLoop
+    {
+        throw new ExitInstanceLoop();
+    }
 }

@@ -13,7 +13,7 @@ import org.jsfml.window.event.Event;
 
 /**
  * <p>A thread for rendering. Itself, it does no rendering; instead, it is given
- * various objects implementing I_Renderer, which, when asked to, will attempt
+ * various objects extending I_Renderer, which, when asked to, will attempt
  * to render whatever it is they're meant to render. Every Instance typically
  * has their own RenderThread; it is started when a Game runs the Instance,
  * and stopped when the Instance returns.</p>
@@ -132,11 +132,11 @@ public class RenderThread implements Runnable
         }
         
         is_rendering = false;
+        is_rendering = false;
         stop_rendering = false;
     }
     
-    // Would be named stop, but that's a thread method
-    public void end()
+    public void stop()
     {
         stop_rendering = true;
     }
