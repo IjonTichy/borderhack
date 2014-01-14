@@ -25,6 +25,8 @@ public class RenderMap extends I_Renderer
     private Vector2f    render_center;
     private float       render_zoom;
     private float       zoom_velocity;
+    private float       render_xsize;
+    private float       render_ysize;
     
     public RenderMap(GameMap map)
     {
@@ -35,6 +37,46 @@ public class RenderMap extends I_Renderer
         r_layer = Integer.MIN_VALUE;
     }
     
+    public Vector2f getRenderedSize()
+    {
+        return new Vector2f(render_xsize, render_ysize);
+    }
+    
+    /**
+     * Returns a rectangle in which you can move around the center of the view
+     * without edges showing, unless it's too small.
+     * @return
+     */
+    private FloatRect getScrollRect(RenderWindow w)
+    {
+        Vector2i winSize = w.getSize();
+        Vector2f mapSize = getRenderedSize();  
+        
+        if (render_zoom == 0) // this should never happen
+        {
+            return new FloatRect(mapSize.x/2, mapSize.y/2, 0, 0);
+        }
+        
+        float leftBuffer = (winSize.x * render_zoom) / 2f;
+        float bufWidth   = mapSize.x - (leftBuffer * 2);
+        float topBuffer  = (winSize.y * render_zoom) / 2f;
+        float bufHeight  = mapSize.y - (topBuffer * 2);
+        
+        if (bufWidth < 0)
+        {
+            leftBuffer  = mapSize.x / 2;
+            bufWidth = 0;
+        }
+        
+        if (bufHeight < 0)
+        {
+            topBuffer = mapSize.y / 2;
+            bufHeight = 0;
+        }
+        
+        return new FloatRect(leftBuffer, topBuffer, bufWidth, bufHeight);
+    }
+    
     // ====
     // == RENDERING
     // ====
@@ -42,6 +84,9 @@ public class RenderMap extends I_Renderer
     private Map<Integer, Map<Texture, VertexArray>> buildVertTree(GameMap map)
     {
         Map<Integer, Map<Texture, VertexArray>> ret = new TreeMap<Integer, Map<Texture, VertexArray>>();
+        
+        render_xsize = 0;
+        render_ysize = 0;
 
         long rtick = r_thread == null ? 0 : r_thread.getTick();
         
@@ -59,7 +104,13 @@ public class RenderMap extends I_Renderer
             for (Vertex v: toRender.points)
             {
                 Vector2f point = v.position;
-                Vector2f newPoint = new Vector2f(point.x + x, point.y + y);
+                float px = point.x + x;
+                float py = point.y + y;
+                
+                render_xsize = Math.max(render_xsize, px);
+                render_ysize = Math.max(render_ysize, py);
+                
+                Vector2f newPoint = new Vector2f(px, py);
                 
                 Vertex newV = new Vertex(newPoint, v.color, v.texCoords);
                 newPoints.add(newV);
@@ -94,9 +145,8 @@ public class RenderMap extends I_Renderer
         
         Vector2i winSize = w.getSize();
         r.setSize(winSize.x, winSize.y);
-        r.setCenter(winSize.x / 2, winSize.y / 2);
+        r.setCenter(render_center);
         
-        r.move(render_center);
         r.zoom(render_zoom);
         
         return r;
@@ -106,11 +156,11 @@ public class RenderMap extends I_Renderer
     private static final float ZOOM_FACTOR    = 0.1f;
     private static final float ZOOM_DECAY     = 0.5f;
     private static final float SCROLL_SECTION = 0.4f;
-    private static final float ZOOM_MIN       = 0.25f;
+    private static final float ZOOM_MIN       = 0.1f;
     private static final float ZOOM_MAX       = 10.0f;
     
     
-    private void handleEvents(RenderWindow rWindow, List<Event> newEvents)
+    private void handlePosition(RenderWindow rWindow, List<Event> newEvents)
     {
         Vector2i mousePos   = Mouse.getPosition(rWindow);
         Vector2i winSize    = rWindow.getSize();
@@ -159,8 +209,14 @@ public class RenderMap extends I_Renderer
         View oldView = mapView(rWindow);
         Vector2f oldMouse = rWindow.mapPixelToCoords(mousePos, oldView);
         
-        render_zoom *= (1 + zoom_velocity);
+        float zoommod;
+        
+        if (zoom_velocity < 0) { zoommod = 1 / (1 - zoom_velocity); }
+        else { zoommod = 1 + zoom_velocity; }
+        
+        render_zoom *= zoommod;
         render_zoom = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, render_zoom));
+        System.out.println(render_zoom);
 
         View curView = mapView(rWindow);
         Vector2f newMouse = rWindow.mapPixelToCoords(mousePos, curView);
@@ -170,6 +226,19 @@ public class RenderMap extends I_Renderer
         
         zoom_velocity *= ZOOM_DECAY;
         if (Math.abs(zoom_velocity) < 0.01) { zoom_velocity = 0; }
+        
+        if (Math.abs(render_zoom - 1) < 0.01) { render_zoom = 1; }
+        
+
+        // Cap panning area so you can't see beyond edges if at all possible
+        // Don't move this up, it makes the zooming jittery and nasty
+        
+        FloatRect validCoords = getScrollRect(rWindow);
+        
+        float rx = Math.max(validCoords.left, Math.min(validCoords.left + validCoords.width, render_center.x));
+        float ry = Math.max(validCoords.top,  Math.min(validCoords.top + validCoords.height, render_center.y));
+        
+        render_center = new Vector2f(rx, ry);
     }
     
     
@@ -179,7 +248,7 @@ public class RenderMap extends I_Renderer
         catch (ContextActivationException e) { return; } // window closed
         
         View rView = mapView(rWindow);
-        handleEvents(rWindow, newEvents);
+        handlePosition(rWindow, newEvents);
         
         ConstView oldView = rWindow.getView();
         Map<Integer, Map<Texture, VertexArray>> renderMap = buildVertTree(render_map);
