@@ -37,9 +37,13 @@ public class RenderQuad
      * Returns a RenderQuad with the texture positioned in its box according to its anchor.
      * The placement of this is a bit esoteric, but it makes the most sense here
      * right now.
+     * <p>If the bounding box is 0x0, instead of anchoring within the box, the anchor
+     * will choose what part of the texture is touching the center. TOP is "top
+     * of texture", BOTTOM is "bottom of texture", etc.</p>
      * 
      * @param tex    <i>(Texture)</i> the texture to center
-     * @param center <i>(Vector2f)</i> the center point
+     * @param size   <i>(Vector2i)</i> bounding box, for anchoring
+     * @param anchor <i>(RenderQuad.anchors)</i> How to anchor it
      * @param layer  <i>(int)</i> the layer to put this on
      * @return an anchored RenderQuad, suitable for moving around.
      */
@@ -52,49 +56,74 @@ public class RenderQuad
         float texCenterX = (float)texSize.x / 2;
         float texCenterY = (float)texSize.y / 2;
         
-        // This is split so code doesn't get AS duplicated
-        switch (anchor)
+        if (size.x == 0 && size.y == 0)
         {
-            case TOP_LEFT:
-            case LEFT:
-            case BOTTOM_LEFT:
-                centerX = texCenterX;
-                break;
+            switch (anchor)
+            {
+                case TOP_LEFT: case LEFT: case BOTTOM_LEFT:
+                    centerX = texCenterX;
+                    break;
+
+                default:
+                case TOP_RIGHT: case RIGHT: case BOTTOM_RIGHT:
+                    centerX = 0;
+                    break;
+                
+                case TOP: case CENTER: case BOTTOM:
+                    centerX = -texCenterX;
+                    break;
+            }
             
-            case TOP_RIGHT:
-            case RIGHT:
-            case BOTTOM_RIGHT:
-            default:
-                centerX = (float)size.x - texCenterX;
-                break;
-            
-            case TOP:
-            case CENTER:
-            case BOTTOM:
-                centerX = (float)size.x / 2;
-                break;
+            switch (anchor)
+            {
+                case TOP_LEFT: case TOP: case TOP_RIGHT:
+                    centerY = texCenterY;
+                    break;
+
+                default:
+                case LEFT: case CENTER: case RIGHT:
+                    centerY = 0;
+                    break;
+                    
+                case BOTTOM_LEFT: case BOTTOM: case BOTTOM_RIGHT:
+                    centerY = -texCenterY;
+                    break;
+            }
         }
-        
-        switch (anchor)
+        else
         {
-            case TOP_LEFT:
-            case TOP:
-            case TOP_RIGHT:
-                centerY = texCenterY;
-                break;
+            // This is split so code doesn't get AS duplicated
+            switch (anchor)
+            {
+                case TOP_LEFT: case LEFT: case BOTTOM_LEFT:
+                    centerX = texCenterX;
+                    break;
+
+                default:
+                case TOP_RIGHT: case RIGHT: case BOTTOM_RIGHT:
+                    centerX = (float)size.x - texCenterX;
+                    break;
                 
-            case LEFT:
-            case CENTER:
-            case RIGHT:
-            default:
-                centerY = (float)size.y / 2;
-                break;
-                
-            case BOTTOM_LEFT:
-            case BOTTOM:
-            case BOTTOM_RIGHT:
-                centerY = (float)size.y - texCenterY;
-                break;
+                case TOP: case CENTER: case BOTTOM:
+                    centerX = (float)size.x / 2;
+                    break;
+            }
+            
+            switch (anchor)
+            {
+                case TOP_LEFT: case TOP: case TOP_RIGHT:
+                    centerY = texCenterY;
+                    break;
+
+                default:
+                case LEFT: case CENTER: case RIGHT:
+                    centerY = (float)size.y / 2;
+                    break;
+                    
+                case BOTTOM_LEFT: case BOTTOM: case BOTTOM_RIGHT:
+                    centerY = (float)size.y - texCenterY;
+                    break;
+            }
         }
         
         return renderAnchored(tex, new Vector2f(centerX, centerY), layer);

@@ -1,18 +1,25 @@
 package entities;
 
+import anim.Animation;
+import anim.FloorAnim;
+
 public class TestFloor extends Entity
 {
     protected void defaults()
     {
         super.defaults();
-        myLayer   = -1;
+        myLayer   = 10;
     }
     
     public int getID() { return 1; }
-    public String getTexturePath() { return "img/shitfloor.png"; }
     
     protected void init()
     {
         return;
+    }
+
+    public Animation defaultAnimation()
+    {
+        return new FloorAnim();
     }
 }

@@ -9,19 +9,20 @@ import org.jsfml.system.Vector2i;
 
 import render.RenderQuad;
 import util.NegativeTickException;
-import util.TexStorage;
+import util.ResourceStorage;
 import util.TextureAlreadyInException;
 
 abstract public class Animation
 {
     protected long              a_starttick;
     protected List<Texture>     a_frames;
-    protected int               a_frameticks;
+    protected int               a_frametime;
     protected boolean           a_loop;
     
     public Animation()
     {
         defaults();
+        loadFrames();
     }
     
     abstract public Vector2i getAnimSize();
@@ -30,14 +31,14 @@ abstract public class Animation
     
     protected void defaults()
     {
-        a_starttick     = 0;
-        a_frameticks    = 250;
-        a_loop          = false;
+        a_starttick = 0;
+        a_frametime = 250;
+        a_loop      = false;
     }
     
     public int getAnimTicks()
     {
-        return a_frameticks * a_frames.size();
+        return a_frametime * a_frames.size();
     }
     
     public int getAnimFrameCount()
@@ -51,15 +52,23 @@ abstract public class Animation
         a_starttick = tick;
     }
     
+    public void setLooping(boolean l)
+    {
+        a_loop = l;
+    }
+    
     protected void loadFrames()
     {
         List<Texture> frames = null;
         
         try
         {
-            frames = TexStorage.loadAnimPath(getFrameSource(), getAnimSize());
+            frames = ResourceStorage.loadAnimPath(getFrameSource(), getAnimSize());
         }
-        catch (TextureAlreadyInException e) { frames = TexStorage.getAnimation(getFrameSource()); }
+        catch (TextureAlreadyInException e)
+        {
+            frames = ResourceStorage.getAnimation(getFrameSource());
+        }
         catch (IOException e)
         {
             System.err.println("ERROR: Could not find file \"" + getFrameSource() + "\"");
@@ -76,17 +85,29 @@ abstract public class Animation
     
     public RenderQuad render(long tick, AnimData a)
     {
+        return render(tick, a, getAnimSize());
+    }
+    
+    public RenderQuad render(long tick, AnimData a, Vector2i size)
+    {
         long actualTick = tick - a_starttick;
+        int  wrappedFrame;
         
-        if (actualTick >= getAnimTicks() && !a_loop)
+        if (a_frametime == 0)
         {
-            return null;
+            wrappedFrame = 0;
+        }
+        else
+        {
+            if (actualTick >= getAnimTicks() && !a_loop)
+            {
+                return null;
+            }
+            
+            long unwrappedFrame = actualTick / a_frametime;
+            wrappedFrame = (int)(unwrappedFrame % getAnimFrameCount());
         }
         
-        long unwrappedFrame = actualTick / a_frameticks;
-        int  wrappedFrame = (int)(unwrappedFrame % getAnimFrameCount());
-        
-        Vector2i size   = getAnimSize();
         return RenderQuad.renderAnchored(a_frames.get(wrappedFrame), size, RenderQuad.anchors.CENTER, a.layer);
     }
 

@@ -1,14 +1,22 @@
 package entities;
 
+import anim.Animation;
+import anim.WallAnim;
+
 public class TestWall extends Entity
 {
     protected void init()
     {
-        // TODO Auto-generated method stub
-        
+        // TODO Auto-generated method stub   
+    }
+    
+    protected void defaults()
+    {
+        super.defaults();
+        myLayer = -10;
     }
     
     public int getID() { return 2; }
-    public String getTexturePath() { return "img/default2.png"; }
+    public Animation defaultAnimation() { return new WallAnim(); }
     
 }

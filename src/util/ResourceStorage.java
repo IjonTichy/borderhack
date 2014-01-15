@@ -8,16 +8,17 @@ import java.util.List;
 import java.util.Map;
 
 import org.jsfml.graphics.Image;
+import org.jsfml.graphics.IntRect;
 import org.jsfml.graphics.Texture;
 import org.jsfml.graphics.TextureCreationException;
 import org.jsfml.system.Vector2i;
 
 
-public class TexStorage
+public class ResourceStorage
 {
     private static Map<String, Texture> textures_stored     = new HashMap<String, Texture>();
     
-    private TexStorage() {}
+    private ResourceStorage() {}
     
     public static Texture getTexture(String key)
     {
@@ -106,6 +107,10 @@ public class TexStorage
         rawimg.loadFromFile(Paths.get(path));
         Vector2i imgSize = rawimg.getSize();
         
+        // have at least one frame get made
+        frameSize = new Vector2i(Math.min(imgSize.x, frameSize.x),
+                                 Math.min(imgSize.y, frameSize.y));
+        
         int xframes = imgSize.x / frameSize.x;
         int yframes = imgSize.y / frameSize.y;
         
@@ -116,8 +121,8 @@ public class TexStorage
             for (x = 0; x < xframes; x++)
             {
                 Texture next = new Texture();
-                next.create(frameSize.x, frameSize.y);
-                next.update(rawimg, x * frameSize.x, y * frameSize.y);
+                IntRect rect = new IntRect(x * frameSize.x, y * frameSize.y, frameSize.x, frameSize.y);
+                next.loadFromImage(rawimg, rect);
                 frames.add(next);
             }
         }

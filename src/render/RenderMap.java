@@ -13,6 +13,7 @@ import org.jsfml.window.event.MouseWheelEvent;
 import entities.Entity;
 import util.Constants;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,19 +28,29 @@ public class RenderMap extends I_Renderer
     private float       zoom_velocity;
     private float       render_xsize;
     private float       render_ysize;
+    private float       render_xstart;
+    private float       render_ystart;
+    
+    private List<Class<? extends Entity>> null_warned;
     
     public RenderMap(GameMap map)
     {
-        render_map   = map;
+        render_map    = map;
         render_center = new Vector2f(0, 0);
         render_zoom   = 1;
+        null_warned   = new ArrayList<Class<? extends Entity>>();
         
         r_layer = Integer.MIN_VALUE;
+        
+        render_xsize = 0;
+        render_ysize = 0;
+        render_xstart = 0;
+        render_ystart = 0;
     }
     
     public Vector2f getRenderedSize()
     {
-        return new Vector2f(render_xsize, render_ysize);
+        return new Vector2f(render_xsize - render_xstart, render_ysize - render_ystart);
     }
     
     /**
@@ -50,7 +61,7 @@ public class RenderMap extends I_Renderer
     private FloatRect getScrollRect(RenderWindow w)
     {
         Vector2i winSize = w.getSize();
-        Vector2f mapSize = getRenderedSize();  
+        Vector2f mapSize = getRenderedSize();
         
         if (render_zoom == 0) // this should never happen
         {
@@ -74,6 +85,9 @@ public class RenderMap extends I_Renderer
             bufHeight = 0;
         }
         
+        leftBuffer += render_xstart;
+        topBuffer  += render_ystart;
+        
         return new FloatRect(leftBuffer, topBuffer, bufWidth, bufHeight);
     }
     
@@ -85,8 +99,10 @@ public class RenderMap extends I_Renderer
     {
         Map<Integer, Map<Texture, VertexArray>> ret = new TreeMap<Integer, Map<Texture, VertexArray>>();
         
-        render_xsize = 0;
-        render_ysize = 0;
+        render_xsize  = 0;
+        render_ysize  = 0;
+        render_xstart = Float.MAX_VALUE;
+        render_ystart = Float.MAX_VALUE;
 
         long rtick = r_thread == null ? 0 : r_thread.getTick();
         
@@ -101,12 +117,27 @@ public class RenderMap extends I_Renderer
             RenderQuad toRender = ent.render(rtick);
             VertexArray newPoints = new VertexArray();
             
+            if (toRender == null)
+            {
+                if (!null_warned.contains(ent.getClass()))
+                {
+                    System.err.println("WARNING: Got nothing to render for " + ent.getClass().getSimpleName());
+                    System.err.println("If it was rendering, its animation died.");
+                    System.err.println("If you meant for this to be invisible, set ent_invisible to true.");
+                    null_warned.add(ent.getClass());
+                }    
+                
+                continue;
+            }
+            
             for (Vertex v: toRender.points)
             {
                 Vector2f point = v.position;
                 float px = point.x + x;
                 float py = point.y + y;
-                
+
+                render_xstart = Math.min(render_xstart, px);
+                render_ystart = Math.min(render_ystart, py);
                 render_xsize = Math.max(render_xsize, px);
                 render_ysize = Math.max(render_ysize, py);
                 
@@ -262,9 +293,10 @@ public class RenderMap extends I_Renderer
             
             for (Map.Entry<Texture, VertexArray> vertEntry: texVerts.entrySet())
             {
-                Texture vertTex   = vertEntry.getKey();
-                VertexArray verts = vertEntry.getValue();
+                Texture vertTex    = vertEntry.getKey();
+                VertexArray verts  = vertEntry.getValue();
                 RenderStates state = new RenderStates(vertTex);
+                
                 
                 rWindow.draw(verts, state);
             }
