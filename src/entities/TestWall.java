@@ -13,7 +13,7 @@ public class TestWall extends Entity
     protected void defaults()
     {
         super.defaults();
-        myLayer = -10;
+        ent_layer = -10;
     }
     
     public int getID() { return 2; }

@@ -8,7 +8,7 @@ public class TestFloor extends Entity
     protected void defaults()
     {
         super.defaults();
-        myLayer   = 10;
+        ent_layer   = 10;
     }
     
     public int getID() { return 1; }

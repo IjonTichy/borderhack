@@ -24,7 +24,7 @@ public class GameMap
     private String map_name;
     
     private long map_tick;
-    private SortedMap<Long, Map<Mode, Method>> map_actions;
+    private SortedMap<Long, List<Mode>> map_actions;
     
     public GameMap(String name)
     {
@@ -104,18 +104,18 @@ public class GameMap
     // == MODE CONTROL
     // ====
     
-    public long scheduleNextAction(Mode scheduling, Method nextAction, long delay)
+    public long scheduleNextAction(Mode scheduling, long delay)
     {
         long runTic = map_tick + delay;
-        Map<Mode, Method> actionsOnTic = map_actions.get(runTic);
+        List<Mode> actionsOnTic = map_actions.get(runTic);
         
         if (actionsOnTic == null)
         {
-            actionsOnTic = new HashMap<Mode, Method>();
+            actionsOnTic = new ArrayList<Mode>();
             map_actions.put(runTic, actionsOnTic);
         }
 
-        actionsOnTic.put(scheduling, nextAction);
+        actionsOnTic.add(scheduling);
         return runTic;
     }
     
@@ -147,26 +147,25 @@ public class GameMap
     
     private void runActionsOnTick(long tick)
     {
-        Map<Mode, Method> ticActions = map_actions.get(tick);
+        List<Mode> ticActions = map_actions.get(tick);
         
-        for (Map.Entry<Mode, Method> nextActionSet: ticActions.entrySet())
+        for (Mode nextMode: ticActions)
         {
-            Mode   nextMode   = nextActionSet.getKey();
-            Method nextAction = nextActionSet.getValue();
-
-            runAction(nextMode, nextAction);
+            runAction(nextMode);
         }
     }
     
-    private void runAction(Mode mode, Method action)
+    private void runAction(Mode mode)
     {
+        Method action = mode.getCurrentAction();
+        
         try
         {
-            DelayedAction result = (DelayedAction)action.invoke(mode, map_tick, this);
+            Long result = (Long)action.invoke(mode, map_tick, this);
             
             if (result != null)
             {
-                scheduleNextAction(mode, result.nextAction, map_tick + result.tickCount);
+                scheduleNextAction(mode,  map_tick + result);
             }
         }
         catch (IllegalArgumentException e)

@@ -1,9 +1,12 @@
 package entities;
 
+import java.util.List;
+
 import org.jsfml.system.Vector2i;
 
 import anim.AnimData;
 import anim.Animation;
+import modes.Mode;
 import render.RenderQuad;
 import util.Constants;
 
@@ -11,10 +14,11 @@ abstract public class Entity
 {
     protected static long E_ID_Counter = 0;
 
-    protected int       myLayer;
-    protected int       mySizeX;
-    protected int       mySizeY;
-    protected Animation myAnim;
+    protected int           ent_layer;
+    protected int           ent_size_x;
+    protected int           ent_size_y;
+    protected Animation     ent_anim;
+    protected List<Mode>    ent_modes;
     
     /**
      * Any sub-entity logic should go here. super.init() is not necessary here;
@@ -43,7 +47,7 @@ abstract public class Entity
 
     public Vector2i getSize()
     {
-        return new Vector2i(this.mySizeX, this.mySizeY);
+        return new Vector2i(this.ent_size_x, this.ent_size_y);
     }
     
     
@@ -52,6 +56,7 @@ abstract public class Entity
     {
         defaults();
         init();
+        setDefaultMode();
     }
 
     /**
@@ -65,9 +70,22 @@ abstract public class Entity
      */
     protected void defaults()
     {
-        myLayer   = 0;
-        mySizeX   = 1;
-        mySizeY   = 1;
+        ent_layer   = 0;
+        ent_size_x  = 1;
+        ent_size_y  = 1;
+    }
+    
+    /**
+     * Sets the default mode on the entity. 
+     * Called by the entity on initialization, and by default does nothing.
+     * If you want an entity to have any behaviour, adding an initial mode here
+     * is the recommended way to do so.
+     * 
+     * @return nothing.
+     */
+    protected void setDefaultMode()
+    {
+        return;
     }
 
     
@@ -92,14 +110,14 @@ abstract public class Entity
     
     public RenderQuad render(long renderTick)
     {
-        if (myAnim == null)
+        if (ent_anim == null)
         {
-            myAnim = defaultAnimation();
-            myAnim.setLooping(true);
+            ent_anim = defaultAnimation();
+            ent_anim.setLooping(true);
         }
-        AnimData animLayer = new AnimData(0, 0, myLayer);
+        AnimData animLayer = new AnimData(0, 0, ent_layer);
         
-        return myAnim.render(renderTick, animLayer, new Vector2i(Constants.TILE_WIDTH, Constants.TILE_HEIGHT));
+        return ent_anim.render(renderTick, animLayer, new Vector2i(Constants.TILE_WIDTH, Constants.TILE_HEIGHT));
     }
     
     public int hashCode()
