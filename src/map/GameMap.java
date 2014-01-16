@@ -1,7 +1,5 @@
 package map;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -15,7 +13,6 @@ import org.jsfml.system.Vector2i;
 
 import entities.Entity;
 import util.Constants;
-import util.DelayedAction;
 
 public class GameMap
 {
@@ -151,35 +148,12 @@ public class GameMap
         
         for (Mode nextMode: ticActions)
         {
-            runAction(nextMode);
-        }
-    }
-    
-    private void runAction(Mode mode)
-    {
-        Method action = mode.getCurrentAction();
-        
-        try
-        {
-            Long result = (Long)action.invoke(mode, map_tick, this);
+            Long nextDelay = nextMode.act(tick, this);
             
-            if (result != null)
+            if (nextDelay != null)
             {
-                scheduleNextAction(mode,  map_tick + result);
+                scheduleNextAction(nextMode, nextDelay);
             }
-        }
-        catch (IllegalArgumentException e)
-        {
-            System.err.println("Mode " + mode.getClass().getSimpleName() + ", action " + action.getName() + " either accepted the wrong arguments,");
-            System.err.println("or it returned the wrong arguments.");
-            System.err.println("(actions should take arguments (long mapTick, GameMap map), and return a DelayedAction)");
-            System.err.println("Stack trace:");
-            e.printStackTrace();
-        }
-        catch (IllegalAccessException | InvocationTargetException e)
-        {
-            System.err.println("Mode " + mode.getClass().getSimpleName() + ", action " + action.getName() + " fucked up:");
-            e.printStackTrace();
         }
     }
     

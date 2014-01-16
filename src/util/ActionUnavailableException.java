@@ -1,4 +1,4 @@
-package modes;
+package util;
 
 public class ActionUnavailableException extends Exception
 {

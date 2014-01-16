@@ -1,7 +1,9 @@
 package modes;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import util.ActionUnavailableException;
 import map.GameMap;
 import entities.Entity;
 
@@ -49,5 +51,37 @@ abstract public class Mode
         return m_nextaction;
     }
     
-    abstract public Method defaultAction(long tick, GameMap map);
+    public Long act(long tick, GameMap map)
+    {
+        Method action = getCurrentAction();
+        Long result = null;
+        
+        try
+        {
+            result = (Long)action.invoke(this, tick, map);
+        }
+        catch (IllegalArgumentException e)
+        {
+            System.err.println("Mode " + getClass().getSimpleName() + ", action " + action.getName() + " either accepted the wrong arguments,");
+            System.err.println("or it returned the wrong arguments.");
+            System.err.println("(actions should take arguments (long mapTick, GameMap map), and return a DelayedAction)");
+            System.err.println("Stack trace:");
+            e.printStackTrace();
+        }
+        catch (IllegalAccessException | InvocationTargetException e)
+        {
+            System.err.println("Mode " + getClass().getSimpleName() + ", action " + action.getName() + " fucked up:");
+            e.printStackTrace();
+        }
+        
+        return result;
+    }
+    
+    /**
+     * Default action.
+     * @param tick  the tick the map is on
+     * @param map   the map itself
+     * @return the amount of ticks until the map should call this mode again
+     */
+    abstract public long defaultAction(long tick, GameMap map);
 }

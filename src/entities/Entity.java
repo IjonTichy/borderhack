@@ -1,5 +1,6 @@
 package entities;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.jsfml.system.Vector2i;
@@ -19,6 +20,9 @@ abstract public class Entity
     protected int           ent_size_y;
     protected Animation     ent_anim;
     protected List<Mode>    ent_modes;
+    
+    // Things that should be standardized among entities
+    protected float         ent_health;
     
     /**
      * Any sub-entity logic should go here. super.init() is not necessary here;
@@ -51,28 +55,32 @@ abstract public class Entity
     }
     
     
-    
+    /**
+     * Constructs an Entity. True defaults are set here. You should <b>never</b>
+     * override this method, as it contains many important things necessary for
+     * an Entity to not break horribly.
+     */
     public Entity()
     {
+        ent_modes = new ArrayList<Mode>();
+        
+        ent_layer   = 0;
+        ent_size_x  = 1;
+        ent_size_y  = 1;
+        
         defaults();
         init();
         setDefaultMode();
     }
 
     /**
-     * Set defaults for an entity here. 
-     * ALWAYS PUT super.defaults() BEFORE YOUR STUFF.
-     * This is to ensure that defaults always propagate if undefined, which
-     * leads to Bad Things being avoided.
+     * Set defaults for an entity here.
      * 
      * @param       nothing.
      * @return      nothing.
      */
     protected void defaults()
     {
-        ent_layer   = 0;
-        ent_size_x  = 1;
-        ent_size_y  = 1;
     }
     
     /**
@@ -81,11 +89,26 @@ abstract public class Entity
      * If you want an entity to have any behaviour, adding an initial mode here
      * is the recommended way to do so.
      * 
+     * <p>This is also called upon an entity on a map start (tick 0). If you wish
+     * to have state be persistent, save a boolean in your subclass and check
+     * that. Shit ain't hard, yo.</p>
+     * 
      * @return nothing.
      */
     protected void setDefaultMode()
     {
         return;
+    }
+    
+    /**
+     * Adds a mode to an entity. Use this to apply debuffs or whatnot to things.
+     * 
+     * @param m     the mode to add.
+     * @return nothing.
+     */
+    public void addMode(Mode m)
+    {
+        
     }
 
     
@@ -95,14 +118,9 @@ abstract public class Entity
      * in the map itself. Should not change the state of the Entity; if it does, I
      * am not responsible for anything that breaks horribly.
      * 
-     * By default, makes sure that there's an animation available, and tells it
+     * <p>By default, makes sure that there's an animation available, and tells it
      * to render. Unless you have very good reasons to do otherwise, leave this
-     * as is.
-     *
-     * <p><b>TODO:</b>
-     *      When scripting API is done, give it a simpler rendering method that only requires
-     *      returning a texture plus an offset from the center. It shouldn't have to care
-     *      about the underlying engine.</p>
+     * as is.</p>
      *
      * @param renderTick The tick in RenderMap that this was called in. Useful for animations.
      * @return          a RenderQuad containing a texture, a layer to render on, and a VertexArray to render with
