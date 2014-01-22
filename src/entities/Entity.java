@@ -1,13 +1,9 @@
 package entities;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.jsfml.system.Vector2i;
 
 import anim.AnimData;
 import anim.Animation;
-import modes.Mode;
 import render.RenderQuad;
 import util.Constants;
 
@@ -19,9 +15,7 @@ abstract public class Entity
     protected int           ent_size_x;
     protected int           ent_size_y;
     protected Animation     ent_anim;
-    protected List<Mode>    ent_modes;
-    
-    // Things that should be standardized among entities
+
     protected float         ent_health;
     
     /**
@@ -62,15 +56,13 @@ abstract public class Entity
      */
     public Entity()
     {
-        ent_modes = new ArrayList<Mode>();
-        
         ent_layer   = 0;
         ent_size_x  = 1;
         ent_size_y  = 1;
+        ent_health  = 1000;
         
         defaults();
         init();
-        setDefaultMode();
     }
 
     /**
@@ -82,35 +74,6 @@ abstract public class Entity
     protected void defaults()
     {
     }
-    
-    /**
-     * Sets the default mode on the entity. 
-     * Called by the entity on initialization, and by default does nothing.
-     * If you want an entity to have any behaviour, adding an initial mode here
-     * is the recommended way to do so.
-     * 
-     * <p>This is also called upon an entity on a map start (tick 0). If you wish
-     * to have state be persistent, save a boolean in your subclass and check
-     * that. Shit ain't hard, yo.</p>
-     * 
-     * @return nothing.
-     */
-    protected void setDefaultMode()
-    {
-        return;
-    }
-    
-    /**
-     * Adds a mode to an entity. Use this to apply debuffs or whatnot to things.
-     * 
-     * @param m     the mode to add.
-     * @return nothing.
-     */
-    public void addMode(Mode m)
-    {
-        
-    }
-
     
     /**
      * Called by RenderMap; returns a RenderQuad containing the data necessary

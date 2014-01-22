@@ -7,11 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 
-import modes.Mode;
-
 import org.jsfml.system.Vector2i;
 
 import entities.Entity;
+import entities.thinkers.Thinker;
 import util.Constants;
 
 public class GameMap
@@ -21,7 +20,7 @@ public class GameMap
     private String map_name;
     
     private long map_tick;
-    private SortedMap<Long, List<Mode>> map_actions;
+    private SortedMap<Long, List<Thinker>> map_actions;
     
     public GameMap(String name)
     {
@@ -101,58 +100,58 @@ public class GameMap
     // == MODE CONTROL
     // ====
     
-    public long scheduleNextAction(Mode scheduling, long delay)
+    public long scheduleThought(Thinker toPoll, long delay)
     {
         long runTic = map_tick + delay;
-        List<Mode> actionsOnTic = map_actions.get(runTic);
+        List<Thinker> actionsOnTic = map_actions.get(runTic);
         
         if (actionsOnTic == null)
         {
-            actionsOnTic = new ArrayList<Mode>();
+            actionsOnTic = new ArrayList<Thinker>();
             map_actions.put(runTic, actionsOnTic);
         }
 
-        actionsOnTic.add(scheduling);
+        actionsOnTic.add(toPoll);
         return runTic;
     }
     
-    public long runNextActions()
+    public long nextThoughts()
     {
         if (map_actions.size() == 0) { return map_tick; }
         
         long ticDelay = map_actions.firstKey();
         map_tick += ticDelay;
         
-        runActionsOnTick(map_tick);
+        thinkTick(map_tick);
         
         return map_tick;
     }
     
-    public long runTicks(long ticCount)
+    public long thinkToTick(long ticCount)
     {
         long i;
         long ticToReach = map_tick + ticCount;
         
         for (i = map_tick; i < ticToReach; i++)
         {
-            runActionsOnTick(i);
+            thinkTick(i);
             map_tick++;
         }
         
         return map_tick;
     }
     
-    private void runActionsOnTick(long tick)
+    private void thinkTick(long tick)
     {
-        List<Mode> ticActions = map_actions.get(tick);
+        List<Thinker> ticActions = map_actions.get(tick);
         
-        for (Mode nextMode: ticActions)
+        for (Thinker toThink: ticActions)
         {
-            Long nextDelay = nextMode.act(tick, this);
+            Long nextDelay = toThink.think(tick, this);
             
             if (nextDelay != null)
             {
-                scheduleNextAction(nextMode, nextDelay);
+                scheduleThought(toThink, nextDelay);
             }
         }
     }

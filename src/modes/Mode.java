@@ -5,20 +5,20 @@ import java.lang.reflect.Method;
 
 import util.ActionUnavailableException;
 import map.GameMap;
-import entities.Entity;
+import entities.thinkers.Thinker;
 
 abstract public class Mode
 {
-    protected Entity m_controller;
+    protected Thinker m_controller;
     protected Method m_nextaction;
     
-    public Mode(Entity e) throws ActionUnavailableException
+    public Mode(Thinker e) throws ActionUnavailableException
     {
         m_controller = e;
         m_nextaction = getAction("defaultAction");
     }
     
-    private Method getAction(String actionName) throws ActionUnavailableException
+    protected Method getAction(String actionName) throws ActionUnavailableException
     {
         @SuppressWarnings("rawtypes")
         Class[] args = {Long.class, GameMap.class};
@@ -53,7 +53,11 @@ abstract public class Mode
     
     public Long act(long tick, GameMap map)
     {
-        Method action = getCurrentAction();
+        return doaction(getCurrentAction(), tick, map);
+    }
+    
+    protected Long doaction(Method action, long tick, GameMap map)
+    {
         Long result = null;
         
         try
