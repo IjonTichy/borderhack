@@ -18,6 +18,23 @@ abstract public class Entity
 
     protected float         ent_health;
     
+    
+    /**
+     * Constructs an Entity. True defaults are set here. You should <b>never</b>
+     * override this method, as it contains many important things necessary for
+     * an Entity to not break horribly.
+     */
+    public Entity()
+    {
+        ent_layer   = 0;
+        ent_size_x  = 1;
+        ent_size_y  = 1;
+        ent_health  = 1000;
+        
+        defaults();
+        init();
+    }
+    
     /**
      * Any sub-entity logic should go here. super.init() is not necessary here;
      * subclasses might have it differently.
@@ -46,23 +63,6 @@ abstract public class Entity
     public Vector2i getSize()
     {
         return new Vector2i(this.ent_size_x, this.ent_size_y);
-    }
-    
-    
-    /**
-     * Constructs an Entity. True defaults are set here. You should <b>never</b>
-     * override this method, as it contains many important things necessary for
-     * an Entity to not break horribly.
-     */
-    public Entity()
-    {
-        ent_layer   = 0;
-        ent_size_x  = 1;
-        ent_size_y  = 1;
-        ent_health  = 1000;
-        
-        defaults();
-        init();
     }
 
     /**
@@ -96,8 +96,8 @@ abstract public class Entity
             ent_anim = defaultAnimation();
             ent_anim.setLooping(true);
         }
-        AnimData animLayer = new AnimData(0, 0, ent_layer);
         
+        AnimData animLayer = new AnimData(0, 0, ent_layer);
         return ent_anim.render(renderTick, animLayer, new Vector2i(Constants.TILE_WIDTH, Constants.TILE_HEIGHT));
     }
     

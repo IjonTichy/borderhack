@@ -1,10 +1,9 @@
 package entities.thinkers;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import java.util.Set;
 import entities.Entity;
 import entities.thinkers.inventory.Inventory;
 import map.GameMap;
@@ -12,13 +11,16 @@ import modes.Mode;
 
 abstract public class Thinker extends Entity
 {
-    protected Map<Long, List<Mode>> t_modes;
-    protected float                 t_shield;
-    protected List<Inventory>       t_backpack;
+    // NOTE: The Long here is a delay until it can run again; while it is
+    //       in map ticks, it it relative. The map makes it absolute.
+    
+    protected Map<Mode, Long>   t_modes;
+    protected float             t_shield;
+    protected List<Inventory>   t_backpack;
     
     public Thinker()
     {
-        t_modes = new HashMap<Long, List<Mode>>();
+        t_modes = new HashMap<Mode, Long>();
         setDefaultMode();
     }
     
@@ -39,27 +41,68 @@ abstract public class Thinker extends Entity
         return;
     }
     
+    
+    /**
+     * Gets a copy of the modes in a Thinker.
+     * 
+     * @return guess.
+     */
+    public Map<Mode, Long> getModes()
+    {
+        return new HashMap<Mode, Long>(t_modes);
+    }
+    
     /**
      * Adds a mode to an entity. Use this to apply debuffs or whatnot to things.
      * 
      * @param m     the mode to add.
+     * @param tick  the tick the mode should next be called on. Should be relative,
+     *              not absolute.
      * @return nothing.
      */
-    public void addMode(Mode m, Long tick)
+    public void updateMode(Mode m, Long delay)
     {
-        List<Mode> tickmodes = t_modes.get(tick);
-        
-        if (tickmodes == null)
-        {
-            tickmodes = new ArrayList<Mode>();
-            t_modes.put(tick,  tickmodes);
-        }
-        
-        tickmodes.add(m);
+        t_modes.put(m, delay);
     }
 
-    public Long think(Long tick, GameMap map)
+    /**
+     * Runs all thoughts scheduled to run in the next tickDelta ticks <i>once</i>.
+     * It's meant to be called with tickDelta being the exact amount of ticks needed
+     * to reach the next set of actions.
+     * 
+     * @param tickDelta the amount of ticks that have passed since the last think call.
+     * @param map       the map that is being thought on.
+     * 
+     * @return a map corresponding to the next set of actions to call. The Long value
+     *          in the map is an absolute tick value.
+     */
+    public Map<Mode, Long> think(Long tickDelta, GameMap map)
     {
-        return null;
+        Map<Mode, Long> ret = new HashMap<>();
+        long mapTick = map.getTick();
+        long endTick = mapTick + tickDelta;
+        
+        Set<Map.Entry<Mode, Long>> modes = t_modes.entrySet();
+        
+        for (Map.Entry<Mode, Long> next: modes)
+        {
+            Mode m = next.getKey();
+            long t = next.getValue() - tickDelta;
+            
+            if (t > 0)
+            {
+                updateMode(m, t);
+                continue;
+            }
+            
+            long runTick   = mapTick + next.getValue();
+            long nextTick  = runTick + m.act(runTick, map);
+            long nextDelay = endTick - nextTick;
+            
+            updateMode(m, nextDelay);
+            ret.put(m, nextTick);
+        }
+        
+        return ret;
     }
 }

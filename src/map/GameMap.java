@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedMap;
+import modes.Mode;
 
 import org.jsfml.system.Vector2i;
 
@@ -20,7 +20,7 @@ public class GameMap
     private String map_name;
     
     private long map_tick;
-    private SortedMap<Long, List<Thinker>> map_actions;
+    private HashMap<Mode, Long> map_actions;
     
     public GameMap(String name)
     {
@@ -52,10 +52,8 @@ public class GameMap
         return new Vector2i(data.x, data.y);
     }
 
-    public String getMapName()
-    {
-        return map_name;
-    }
+    public String getMapName() { return map_name; }
+    public long getTick() { return map_tick; }
 
     // ====
     // == ENTITY CONTROL
@@ -100,60 +98,76 @@ public class GameMap
     // == MODE CONTROL
     // ====
     
-    public long scheduleThought(Thinker toPoll, long delay)
+    private void registerThinkerModes(Thinker t)
     {
-        long runTic = map_tick + delay;
-        List<Thinker> actionsOnTic = map_actions.get(runTic);
-        
-        if (actionsOnTic == null)
+        for (Map.Entry<Mode, Long> e: t.getModes().entrySet())
         {
-            actionsOnTic = new ArrayList<Thinker>();
-            map_actions.put(runTic, actionsOnTic);
+            schedule(e.getKey(), e.getValue() + map_tick);
         }
-
-        actionsOnTic.add(toPoll);
-        return runTic;
     }
     
-    public long nextThoughts()
+    private void unregisterThinkerModes(Thinker t)
     {
-        if (map_actions.size() == 0) { return map_tick; }
-        
-        long ticDelay = map_actions.firstKey();
-        map_tick += ticDelay;
-        
-        thinkTick(map_tick);
-        
-        return map_tick;
-    }
-    
-    public long thinkToTick(long ticCount)
-    {
-        long i;
-        long ticToReach = map_tick + ticCount;
-        
-        for (i = map_tick; i < ticToReach; i++)
+        for (Mode m: t.getModes().keySet())
         {
-            thinkTick(i);
-            map_tick++;
+            unschedule(m);
         }
-        
-        return map_tick;
     }
     
-    private void thinkTick(long tick)
+    private void schedule(Mode m, long tick)
     {
-        List<Thinker> ticActions = map_actions.get(tick);
+        Long curTime  = map_actions.get(m);
+        long nextTime;
         
-        for (Thinker toThink: ticActions)
+        if (curTime == null || curTime < map_tick) { nextTime = tick; }
+        else { nextTime = Math.min(tick, curTime); }
+        
+        map_actions.put(m, nextTime);
+    }
+    
+    private void unschedule(Mode m)
+    {
+        map_actions.remove(m);
+    }
+    
+    private void thinkTicks(long ticks)
+    {
+        long nextTick = ticks + map_tick;
+        
+        while (map_tick < nextTick)
         {
-            Long nextDelay = toThink.think(tick, this);
-            
-            if (nextDelay != null)
+           thinkNext();
+        }
+    }
+    
+    private long getNextThoughtTick()
+    {
+        long ret = Long.MAX_VALUE;
+        for (long t: map_actions.values()) { ret = Math.min(t, ret); }
+        return ret;
+    }
+    
+    private long thinkNext()
+    {
+        Map<Mode, Long> newModes = new HashMap<>();
+        long next = getNextThoughtTick();
+        long delta = next - map_tick;
+        
+        for (Entity e: map_entities.keySet())
+        {
+            if (e instanceof Thinker)
             {
-                scheduleThought(toThink, nextDelay);
+                Thinker t = (Thinker)e;
+                newModes.putAll(t.think(delta, this));
             }
         }
+        
+        for (Map.Entry<Mode, Long> m: newModes.entrySet())
+        {
+            schedule(m.getKey(), m.getValue());
+        }
+        
+        return map_tick;
     }
     
     // ====

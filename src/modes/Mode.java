@@ -10,7 +10,7 @@ import entities.thinkers.Thinker;
 abstract public class Mode
 {
     protected Thinker m_controller;
-    protected Method m_nextaction;
+    protected Method  m_nextaction;
     
     public Mode(Thinker e) throws ActionUnavailableException
     {
@@ -44,6 +44,11 @@ abstract public class Mode
         }
         
         return ret;   
+    }
+    
+    public Thinker getController()
+    {
+        return m_controller;
     }
     
     public Method getCurrentAction()
