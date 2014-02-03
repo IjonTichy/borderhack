@@ -12,10 +12,15 @@ abstract public class Mode
     protected Thinker m_controller;
     protected Method  m_nextaction;
     
-    public Mode(Thinker e) throws ActionUnavailableException
+    public Mode()
+    {
+        this(null);
+    }
+    
+    public Mode(Thinker e)
     {
         m_controller = e;
-        m_nextaction = getAction("defaultAction");
+        m_nextaction = null;
     }
     
     protected Method getAction(String actionName) throws ActionUnavailableException
@@ -53,6 +58,20 @@ abstract public class Mode
     
     public Method getCurrentAction()
     {
+        if (m_nextaction == null)
+        {
+            try
+            {
+                return getAction("defaultAction");
+            } catch (ActionUnavailableException e)
+            {
+                System.err.println("Oh jesus christ mode \"" + this.getClass().getSimpleName()
+                                    + "\" doesn't have a default action jesus christ this is bad");
+                e.printStackTrace();
+                System.exit(1);
+            }
+        }
+        
         return m_nextaction;
     }
     

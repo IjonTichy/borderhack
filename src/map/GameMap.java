@@ -74,6 +74,8 @@ public class GameMap
         }
         
         map_entities.put(ent, new MapData(pos));
+        if (ent instanceof Thinker) { registerThinkerModes((Thinker)ent); }
+        
         return true;
     }
     
@@ -90,7 +92,8 @@ public class GameMap
             map_entities.remove(ent);
             return true;
         }
-       
+
+        if (ent instanceof Thinker) { unregisterThinkerModes((Thinker)ent); }
         return false;
     }
     
@@ -167,6 +170,7 @@ public class GameMap
             schedule(m.getKey(), m.getValue());
         }
         
+        map_tick = next;
         return map_tick;
     }
     
