@@ -26,12 +26,12 @@ public class GameMap
     {
         map_name = name;
         map_entities = new HashMap<Entity, MapData>();
+        map_actions  = new HashMap<Mode, Long>();
     }
     
     public GameMap(String name, Map<Entity, MapData> ents)
     {
-        map_name = name;
-        map_entities = new HashMap<Entity, MapData>();
+        this(name);
         map_entities.putAll(ents);
     }
     

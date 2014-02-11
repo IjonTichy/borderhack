@@ -110,36 +110,4 @@ abstract public class Animation
         
         return RenderQuad.renderAnchored(a_frames.get(wrappedFrame), size, RenderQuad.anchors.CENTER, a.layer);
     }
-
-    @Override
-    public int hashCode()
-    {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + (int) (getID() ^ (getID() >>> 32));
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj)
-    {
-        if (this == obj)
-        {
-            return true;
-        }
-        if (obj == null)
-        {
-            return false;
-        }
-        if (getClass() != obj.getClass())
-        {
-            return false;
-        }
-        Animation other = (Animation) obj;
-        if (a_starttick != other.a_starttick)
-        {
-            return false;
-        }
-        return true;
-    }
 }

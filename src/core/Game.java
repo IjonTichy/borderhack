@@ -14,6 +14,7 @@ import org.jsfml.window.event.Event;
 import entities.Entity;
 import entities.TestFloor;
 import entities.TestWall;
+import entities.thinkers.TestThinker;
 
 public class Game implements Runnable
 {
@@ -53,6 +54,8 @@ public class Game implements Runnable
                 }
             }
         }
+        
+        testmap.addToMap(new TestThinker(), new MapData(1, 1));
         
         I_Instance gameInstance = new MapInstance(gameWindow, events, testmap);
         
