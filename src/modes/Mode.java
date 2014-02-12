@@ -2,15 +2,19 @@ package modes;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 import util.ActionUnavailableException;
 import map.GameMap;
 import entities.thinkers.Thinker;
+import events.Control;
 
 abstract public class Mode
 {
-    protected Thinker m_controller;
-    protected Method  m_nextaction;
+    protected Thinker       m_controller;
+    protected Method        m_nextaction;
+    private   List<Control> m_controls;
     
     public Mode()
     {
@@ -21,6 +25,7 @@ abstract public class Mode
     {
         m_controller = e;
         m_nextaction = null;
+        m_controls   = new ArrayList<>();
     }
     
     protected Method getAction(String actionName) throws ActionUnavailableException
@@ -86,7 +91,8 @@ abstract public class Mode
         
         try
         {
-            result = (Long)action.invoke(this, tick, map);
+            result = (Long)action.invoke(this, tick, map, new ArrayList<Control>(m_controls));
+            clearControls();
         }
         catch (IllegalArgumentException e)
         {
@@ -105,11 +111,26 @@ abstract public class Mode
         return result;
     }
     
+    public void giveControl(Control c)
+    {
+        m_controls.add(c);
+    }
+    
+    public void giveControls(List<Control> c)
+    {
+        m_controls.addAll(c);
+    }
+    
+    private void clearControls()
+    {
+        m_controls.clear();
+    }
+    
     /**
      * Default action.
      * @param tick  the tick the map is on
      * @param map   the map itself
      * @return the amount of ticks until the map should call this mode again
      */
-    abstract public long defaultAction(long tick, GameMap map);
+    abstract public long defaultAction(long tick, GameMap map, List<Control> controls);
 }

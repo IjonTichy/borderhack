@@ -1,6 +1,7 @@
 package events;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -8,15 +9,45 @@ import org.jsfml.window.event.*;
 
 public class KeyboardMapper
 {
-    private static Map<KeyMapping, Control> km_keymap;
+    private Map<KeyMapping, Control> km_keymap;
     
     public KeyboardMapper()
     {
-        
+        this(null);
+    }
+    
+    public KeyboardMapper(Map<KeyMapping, Control> keys)
+    {
+        updateKeys(keys);
+    }
+    
+    private void initKeys()
+    {
+        km_keymap = new HashMap<KeyMapping, Control>();
+    }
+    
+    public void clearKeys()
+    {
+        initKeys();
+    }
+    
+    public void addKey(KeyMapping from, Control to)
+    {
+        if (km_keymap == null) { initKeys(); }
+        km_keymap.put(from, to);
+    }
+    
+    public void updateKeys(Map<KeyMapping, Control> newKeys)
+    {
+        if (newKeys == null) { return; }
+        if (km_keymap == null) { initKeys(); }
+        km_keymap.putAll(newKeys);
     }
     
     public List<Control> interpretKeys(List<Event> inEvents)
     {
+        if (km_keymap == null) { return new ArrayList<Control>(); }
+        
         List<Control> outControls = new ArrayList<Control>();
         
         for (Event e: inEvents)

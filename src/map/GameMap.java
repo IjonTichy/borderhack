@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import modes.Mode;
 
 import org.jsfml.system.Vector2i;
@@ -20,13 +21,13 @@ public class GameMap
     private String map_name;
     
     private long map_tick;
-    private HashMap<Mode, Long> map_actions;
-    
+    private HashMap<Mode, Long>     map_modeTicks;
+
     public GameMap(String name)
     {
         map_name = name;
-        map_entities = new HashMap<Entity, MapData>();
-        map_actions  = new HashMap<Mode, Long>();
+        map_entities     = new HashMap<>();
+        map_modeTicks    = new HashMap<>();
     }
     
     public GameMap(String name, Map<Entity, MapData> ents)
@@ -119,18 +120,18 @@ public class GameMap
     
     private void schedule(Mode m, long tick)
     {
-        Long curTime  = map_actions.get(m);
+        Long curTime  = map_modeTicks.get(m);
         long nextTime;
         
         if (curTime == null || curTime < map_tick) { nextTime = tick; }
         else { nextTime = Math.min(tick, curTime); }
         
-        map_actions.put(m, nextTime);
+        map_modeTicks.put(m, nextTime);
     }
     
     private void unschedule(Mode m)
     {
-        map_actions.remove(m);
+        map_modeTicks.remove(m);
     }
     
     private void thinkTicks(long ticks)
@@ -145,8 +146,10 @@ public class GameMap
     
     private long getNextThoughtTick()
     {
+        if (map_modeTicks.size() == 0) { return 0; }
+        
         long ret = Long.MAX_VALUE;
-        for (long t: map_actions.values()) { ret = Math.min(t, ret); }
+        for (long t: map_modeTicks.values()) { ret = Math.min(t, ret); }
         return ret;
     }
     
