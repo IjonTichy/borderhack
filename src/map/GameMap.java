@@ -12,6 +12,7 @@ import org.jsfml.system.Vector2i;
 
 import entities.Entity;
 import entities.thinkers.Thinker;
+import events.Control;
 import util.Constants;
 
 public class GameMap
@@ -55,6 +56,15 @@ public class GameMap
 
     public String getMapName() { return map_name; }
     public long getTick() { return map_tick; }
+    
+    
+    public long doTicks(long tickCount)
+    {
+        if (tickCount == 0) { thinkNext(); }
+        else { thinkTicks(tickCount); }
+        
+        return map_tick;
+    }
 
     // ====
     // == ENTITY CONTROL
@@ -123,7 +133,7 @@ public class GameMap
         Long curTime  = map_modeTicks.get(m);
         long nextTime;
         
-        if (curTime == null || curTime < map_tick) { nextTime = tick; }
+        if (curTime == null || curTime <= map_tick) { nextTime = tick; }
         else { nextTime = Math.min(tick, curTime); }
         
         map_modeTicks.put(m, nextTime);
@@ -136,9 +146,9 @@ public class GameMap
     
     private void thinkTicks(long ticks)
     {
-        long nextTick = ticks + map_tick;
+        long endTick = ticks + map_tick;
         
-        while (map_tick < nextTick)
+        while (map_tick < endTick)
         {
            thinkNext();
         }
@@ -155,26 +165,60 @@ public class GameMap
     
     private long thinkNext()
     {
+        if (map_modeTicks.size() == 0) { return map_tick; }
+        
         Map<Mode, Long> newModes = new HashMap<>();
         long next = getNextThoughtTick();
-        long delta = next - map_tick;
+        long shortest = Long.MAX_VALUE;
         
         for (Entity e: map_entities.keySet())
         {
             if (e instanceof Thinker)
             {
                 Thinker t = (Thinker)e;
-                newModes.putAll(t.think(delta, this));
+                newModes.putAll(t.think(next - map_tick, this));
             }
         }
         
-        for (Map.Entry<Mode, Long> m: newModes.entrySet())
+        for (Map.Entry<Mode, Long> e: newModes.entrySet())
         {
-            schedule(m.getKey(), m.getValue());
+            Mode m = e.getKey();
+            Long l = e.getValue();
+            schedule(m, l);
+            shortest = Math.min(l, shortest);
         }
         
-        map_tick = next;
+        if (shortest == Long.MAX_VALUE) { shortest = next; }
+
+        for (Entity e: map_entities.keySet())
+        {
+            if (e instanceof Thinker)
+            {
+                Thinker t = (Thinker)e;
+                t.tickDown(shortest - map_tick);
+            }
+        }
+
+        map_tick = shortest;
         return map_tick;
+    }
+    
+    // ====
+    // == CONTROL... CONTROL
+    // ====
+    
+    public void getControls(List<Control> controls)
+    {
+        for (Entity e: map_entities.keySet())
+        {
+            if (!(e instanceof Thinker)) { continue; }
+            Thinker t = (Thinker)e;
+            
+            for (Mode m: t.getModes().keySet())
+            {
+                m.giveControls(controls);
+            }
+        }
     }
     
     // ====

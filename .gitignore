@@ -6,3 +6,4 @@ bin/*
 hs_err_*.log
 
 !jsfml/jsfml.jar
+/bin

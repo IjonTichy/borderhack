@@ -82,27 +82,39 @@ abstract public class Thinker extends Entity
         long mapTick = map.getTick();
         long endTick = mapTick + tickDelta;
         
+        tickDown(tickDelta);
+        
         Set<Map.Entry<Mode, Long>> modes = t_modes.entrySet();
         
         for (Map.Entry<Mode, Long> next: modes)
         {
-            Mode m = next.getKey();
-            long t = next.getValue() - tickDelta;
+            Mode mode     = next.getKey();
+            Long timeLeft = next.getValue();
             
-            if (t > 0)
-            {
-                updateMode(m, t);
-                continue;
-            }
+            if (timeLeft > 0) { continue; }
             
-            long runTick   = mapTick + next.getValue();
-            long nextTick  = runTick + m.act(runTick, map);
-            long nextDelay = endTick - nextTick;
+            long runTick   = mapTick - timeLeft;
+            long nextTick  = runTick + mode.act(runTick, map);
+            long nextDelay = nextTick - endTick;
             
-            updateMode(m, nextDelay);
-            ret.put(m, nextTick);
+            updateMode(mode, nextDelay);
+            ret.put(mode, nextTick);
         }
         
         return ret;
+    }
+    
+    
+    public void tickDown(Long tickDelta)
+    {
+        Set<Map.Entry<Mode, Long>> modes = t_modes.entrySet();
+        for (Map.Entry<Mode, Long> next: modes)
+        {
+            Mode mode  = next.getKey();
+            Long delay = next.getValue();
+            
+            long t = delay - tickDelta;
+            updateMode(mode, t);
+        }
     }
 }

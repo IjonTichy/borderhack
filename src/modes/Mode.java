@@ -40,16 +40,14 @@ abstract public class Mode
         }
         catch (NoSuchMethodException e)
         {
-            System.err.println("Requested action \"" + actionName + "\" on mode"
+            System.err.println("Requested action \"" + actionName + "\" on mode "
                     + this.getClass().getSimpleName() + ", and it doesn't exist");
-            e.printStackTrace();
             throw(new ActionUnavailableException());
         }
         catch (SecurityException e)
         {
-            System.err.println("Requested action \"" + actionName + "\" on mode"
+            System.err.println("Requested action \"" + actionName + "\" on mode "
                     + this.getClass().getSimpleName() + ", and it is inaccessible");
-            e.printStackTrace();
             throw(new ActionUnavailableException());
         }
         
@@ -68,7 +66,8 @@ abstract public class Mode
             try
             {
                 return getAction("defaultAction");
-            } catch (ActionUnavailableException e)
+            }
+            catch (ActionUnavailableException e)
             {
                 System.err.println("Oh jesus christ mode \"" + this.getClass().getSimpleName()
                                     + "\" doesn't have a default action jesus christ this is bad");
@@ -91,7 +90,7 @@ abstract public class Mode
         
         try
         {
-            result = (Long)action.invoke(this, tick, map, new ArrayList<Control>(m_controls));
+            result = (Long)action.invoke(this, tick, map);
             clearControls();
         }
         catch (IllegalArgumentException e)
@@ -132,5 +131,5 @@ abstract public class Mode
      * @param map   the map itself
      * @return the amount of ticks until the map should call this mode again
      */
-    abstract public long defaultAction(long tick, GameMap map, List<Control> controls);
+    abstract public long defaultAction(Long tick, GameMap map);
 }

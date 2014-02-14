@@ -15,7 +15,6 @@ import map.GameMap;
  */
 public class MapInstance extends I_Instance
 {
-    @SuppressWarnings("unused") // I am going to use it faggot
     private GameMap my_map;
     
     public MapInstance(RenderWindow window, BlockingQueue<Event> events, GameMap map)
@@ -30,6 +29,7 @@ public class MapInstance extends I_Instance
     
     public I_Instance tick(List<Event> newEvents)
     {
+        my_map.doTicks(0);
         return this;
     }
 }

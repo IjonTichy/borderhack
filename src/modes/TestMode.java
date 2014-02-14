@@ -14,7 +14,7 @@ public class TestMode extends Mode
     }
     
     @Override
-    public long defaultAction(long tick, GameMap map, List<Control> controls)
+    public long defaultAction(Long tick, GameMap map)
     {
         System.out.println("Tick " + tick + " is dumb");
         return 100;
