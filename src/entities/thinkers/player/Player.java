@@ -1,5 +1,6 @@
 package entities.thinkers.player;
 
+import modes.player.PlayerMainMode;
 import anim.Animation;
 import anim.PlayerAnim;
 import entities.thinkers.Thinker;
@@ -28,4 +29,9 @@ public class Player extends Thinker
         return new PlayerAnim();
     }
 
+    @Override
+    protected void setDefaultMode()
+    {
+        updateMode(new PlayerMainMode(this), 0l);
+    }
 }

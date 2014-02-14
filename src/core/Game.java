@@ -15,6 +15,7 @@ import entities.Entity;
 import entities.TestFloor;
 import entities.TestWall;
 import entities.thinkers.TestThinker;
+import entities.thinkers.player.Player;
 
 public class Game implements Runnable
 {
@@ -34,6 +35,8 @@ public class Game implements Runnable
     public void run()
     {    
         GameMap testmap = new GameMap("test map");
+        Player  testply = new Player();
+        
         
         
         int x, y;
@@ -56,6 +59,7 @@ public class Game implements Runnable
         }
         
         testmap.addToMap(new TestThinker(), new MapData(1, 1));
+        testmap.addToMap(testply, new MapData(2, 2));
         
         I_Instance gameInstance = new MapInstance(gameWindow, events, testmap);
         
