@@ -1,6 +1,6 @@
 package entities.thinkers.player;
 
-import events.Control;
+import controls.Control;
 
 public class MovementControl extends Control
 {   

@@ -3,7 +3,7 @@ package entities.thinkers.player;
 import modes.player.PlayerMainMode;
 import anim.Animation;
 import anim.PlayerAnim;
-import events.Control;
+import controls.Control;
 import entities.thinkers.Thinker;
 
 public class Player extends Thinker

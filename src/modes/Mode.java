@@ -8,7 +8,7 @@ import java.util.List;
 import util.ActionUnavailableException;
 import map.GameMap;
 import entities.thinkers.Thinker;
-import events.Control;
+import controls.Control;
 
 abstract public class Mode
 {

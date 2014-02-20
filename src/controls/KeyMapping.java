@@ -1,4 +1,4 @@
-package events;
+package controls;
 
 import org.jsfml.window.Keyboard;
 import org.jsfml.window.event.Event;

@@ -12,7 +12,7 @@ import org.jsfml.system.Vector2i;
 
 import entities.Entity;
 import entities.thinkers.Thinker;
-import events.Control;
+import controls.Control;
 import util.Constants;
 
 /**

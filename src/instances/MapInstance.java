@@ -9,9 +9,9 @@ import java.util.concurrent.BlockingQueue;
 import org.jsfml.graphics.RenderWindow;
 import org.jsfml.window.event.Event;
 
-import events.Control;
-import events.ControlMapper;
-import events.KeyMapping;
+import controls.Control;
+import controls.ControlMapper;
+import controls.KeyMapping;
 import render.RenderMap;
 import map.GameMap;
 
@@ -37,9 +37,7 @@ public class MapInstance extends I_Instance
     private static void setupControlMapper()
     {
         if (s_mi_controlmapper == null) { return; }
-        
         s_mi_controlmapper = new ControlMapper();
-        
         Map<KeyMapping, Control> keysToMap = new HashMap<>();
     }
     

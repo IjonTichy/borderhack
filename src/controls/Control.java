@@ -1,4 +1,4 @@
-package events;
+package controls;
 
 public class Control
 {
