@@ -15,8 +15,22 @@ import entities.thinkers.Thinker;
 import events.Control;
 import util.Constants;
 
+/**
+ * <p>The game map! Everything in the game happens here.</p>
+ * 
+ * <p>This holds animations and entities for the map, as well as absolute times
+ * for modes to run, and handles sending controls to the thinkers in it.</p>
+ * 
+ *  Some units:
+ *  <ul>
+ *    <li>One second = 1000000 ticks (you still get 292471 in-game years, don't worry)</li>
+ *  </ul>
+ *  
+ */
 public class GameMap
 {
+    public static final long SECOND_TICKS   = 1000000;
+    
     private Map<Entity, MapData>    map_entities;
     private Map<Vector2i, MapBlock> map_blocks;
     private String map_name;

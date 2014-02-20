@@ -7,16 +7,16 @@ import java.util.Map;
 
 import org.jsfml.window.event.*;
 
-public class KeyboardMapper
+public class ControlMapper
 {
     private Map<KeyMapping, Control> km_keymap;
     
-    public KeyboardMapper()
+    public ControlMapper()
     {
         this(null);
     }
     
-    public KeyboardMapper(Map<KeyMapping, Control> keys)
+    public ControlMapper(Map<KeyMapping, Control> keys)
     {
         updateKeys(keys);
     }
