@@ -12,7 +12,7 @@ import org.jsfml.window.event.*;
 
 public class ControlMapper
 {
-    private static Map<KeyMapping, Control> km_s_keymap;
+    private static Map<KeyMapping, Set<Control>> km_s_keymap;
     private Set<Control> km_enabled;
     
     
@@ -32,7 +32,7 @@ public class ControlMapper
     private static void initKeys()
     {
         if (km_s_keymap != null) { return; }
-        km_s_keymap = new HashMap<KeyMapping, Control>();
+        km_s_keymap = new HashMap<KeyMapping, Set<Control>>();
     }
     
     public static void clearKeys()
@@ -44,30 +44,46 @@ public class ControlMapper
     public static void addKey(KeyMapping from, Control to)
     {
         initKeys();
-        km_s_keymap.put(from, to);
+        
+        Set<Control> cs = km_s_keymap.get(from);
+        
+        if (cs == null)
+        {
+            cs = new HashSet<Control>();
+            km_s_keymap.put(from, cs);
+        }
+        
+        cs.add(to);
     }
     
     public static void updateKeys(Map<KeyMapping, Control> newKeys)
     {
         if (newKeys == null) { return; }
         initKeys();
-        km_s_keymap.putAll(newKeys);
+
+        for (Map.Entry<KeyMapping, Control> e: newKeys.entrySet())
+        {
+            addKey(e.getKey(), e.getValue());
+        }
     }
     
-    public static void removeKey(KeyMapping noMore)
+    public static void removeKeyControl(KeyMapping at, Control noMore)
     {
         initKeys();
-        km_s_keymap.remove(noMore);
+        
+        Set<Control> cs = km_s_keymap.get(at);
+        if (cs == null) { return; }
+        cs.remove(noMore);
     }
     
-    public static void removeKeys(Collection<KeyMapping> noMore)
+    public static void removeKeys(Map<KeyMapping, Control> noMore)
     {
         if (noMore == null) { return; }
         initKeys();
         
-        for (KeyMapping km: noMore)
+        for (Map.Entry<KeyMapping, Control> e: noMore.entrySet())
         {
-            km_s_keymap.remove(km);
+            removeKeyControl(e.getKey(), e.getValue());
         }
     }
     
@@ -118,25 +134,25 @@ public class ControlMapper
         if (km_s_keymap == null || km_enabled == null)
             { return new ArrayList<Control>(); }
         
-        List<Control> outControls = new ArrayList<Control>();
+        List<Control> outControls = new ArrayList<>();
         
         for (Event e: inEvents)
         {
             KeyEvent k = e.asKeyEvent();
             if (k == null) { continue; }
             
-            for (Map.Entry<KeyMapping, Control> e2: km_s_keymap.entrySet())
-            {
-                KeyMapping km = e2.getKey();
-                Control    c  = e2.getValue();
-                
-                if (km.equals(k) && km_enabled.contains(c))
-                {
-                    outControls.add(c);
-                }
-            }
+            Set<Control> c = matchedControls(k);
+            outControls.addAll(c);
         }
         
         return outControls;
+    }
+    
+    private Set<Control> matchedControls(KeyEvent key)
+    {
+        Set<Control> controls = km_s_keymap.get(key);
+        Set<Control> out = new HashSet<>(km_enabled);
+        out.retainAll(controls);
+        return out;
     }
 }
