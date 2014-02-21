@@ -36,11 +36,10 @@ public class MapInstance extends I_Instance
     
     private static void setupControlMapper()
     {
-        if (s_mi_controlmapper == null) { return; }
+        if (s_mi_controlmapper != null) { return; }
+        
         s_mi_controlmapper = new ControlMapper();
         Set<Control> controls = new HashSet<>();        
-        
-        // key definitions go here
         
         for (Player.PControl p: Player.PControl.values())
         {
@@ -48,13 +47,14 @@ public class MapInstance extends I_Instance
             controls.add(c);
         }
         
-        // key definitions do not go down here
-        
         s_mi_controlmapper.enableControls(controls);
     }
     
     public I_Instance tick(List<Event> newEvents)
     {
+        List<Control> outEvents = s_mi_controlmapper.interpretKeys(newEvents);
+        mi_map.getControls(outEvents);
+        
         mi_map.doTicks(0);
         return this;
     }

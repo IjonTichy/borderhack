@@ -13,13 +13,13 @@ public class MovementControl extends Control
     
     public final Direction mc_direction;
     
-    public MovementControl()
-    {
-        this(Direction.NONE);
-    }
+    public MovementControl() { this(null, Direction.NONE); }
+    public MovementControl(Direction d) { this(null, d); }
+    public MovementControl(String name) { this(name, Direction.NONE); }
     
-    public MovementControl(Direction d)
+    public MovementControl(String name, Direction d)
     {
+        super(name);
         mc_direction = d;
     }
 }

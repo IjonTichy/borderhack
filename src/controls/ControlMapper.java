@@ -10,9 +10,13 @@ import java.util.Set;
 
 import org.jsfml.window.event.*;
 
+/**
+ * Maps keys to controls.
+ *
+ */
 public class ControlMapper
 {
-    private static Map<KeyMapping, Set<Control>> km_s_keymap;
+    private static Map<KeyMapping, Set<Control>> s_km_keymap;
     private Set<Control> km_enabled;
     
     
@@ -31,13 +35,13 @@ public class ControlMapper
     
     private static void initKeys()
     {
-        if (km_s_keymap != null) { return; }
-        km_s_keymap = new HashMap<KeyMapping, Set<Control>>();
+        if (s_km_keymap != null) { return; }
+        s_km_keymap = new HashMap<KeyMapping, Set<Control>>();
     }
     
     public static void clearKeys()
     {
-        km_s_keymap = null;
+        s_km_keymap = null;
         initKeys();
     }
     
@@ -45,12 +49,12 @@ public class ControlMapper
     {
         initKeys();
         
-        Set<Control> cs = km_s_keymap.get(from);
+        Set<Control> cs = s_km_keymap.get(from);
         
         if (cs == null)
         {
             cs = new HashSet<Control>();
-            km_s_keymap.put(from, cs);
+            s_km_keymap.put(from, cs);
         }
         
         cs.add(to);
@@ -71,7 +75,7 @@ public class ControlMapper
     {
         initKeys();
         
-        Set<Control> cs = km_s_keymap.get(at);
+        Set<Control> cs = s_km_keymap.get(at);
         if (cs == null) { return; }
         cs.remove(noMore);
     }
@@ -131,7 +135,7 @@ public class ControlMapper
     
     public List<Control> interpretKeys(List<Event> inEvents)
     {
-        if (km_s_keymap == null || km_enabled == null)
+        if (s_km_keymap == null || km_enabled == null)
             { return new ArrayList<Control>(); }
         
         List<Control> outControls = new ArrayList<>();
@@ -150,7 +154,9 @@ public class ControlMapper
     
     private Set<Control> matchedControls(KeyEvent key)
     {
-        Set<Control> controls = km_s_keymap.get(key);
+        Set<Control> controls = s_km_keymap.get(key);
+        if (controls == null) { controls = new HashSet<>(); }
+        
         Set<Control> out = new HashSet<>(km_enabled);
         out.retainAll(controls);
         return out;

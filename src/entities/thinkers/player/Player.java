@@ -10,16 +10,16 @@ public class Player extends Thinker
 {
     public static enum PControl
     {
-        MOVE_NORTHWEST(new MovementControl(MovementControl.Direction.NORTHWEST)),
-        MOVE_NORTH(    new MovementControl(MovementControl.Direction.NORTH)),
-        MOVE_NORTHEAST(new MovementControl(MovementControl.Direction.NORTHEAST)),
-        MOVE_WEST(     new MovementControl(MovementControl.Direction.WEST)),
-        MOVE_EAST(     new MovementControl(MovementControl.Direction.EAST)),
-        MOVE_SOUTHWEST(new MovementControl(MovementControl.Direction.SOUTHWEST)),
-        MOVE_SOUTH(    new MovementControl(MovementControl.Direction.SOUTH)),
-        MOVE_SOUTHEAST(new MovementControl(MovementControl.Direction.SOUTHEAST)),
+        MOVE_NORTHWEST(new MovementControl("Move NW", MovementControl.Direction.NORTHWEST)),
+        MOVE_NORTH(    new MovementControl("Move N",  MovementControl.Direction.NORTH)),
+        MOVE_NORTHEAST(new MovementControl("Move NE", MovementControl.Direction.NORTHEAST)),
+        MOVE_WEST(     new MovementControl("Move W",  MovementControl.Direction.WEST)),
+        MOVE_EAST(     new MovementControl("Move E",  MovementControl.Direction.EAST)),
+        MOVE_SOUTHWEST(new MovementControl("Move SW", MovementControl.Direction.SOUTHWEST)),
+        MOVE_SOUTH(    new MovementControl("Move S",  MovementControl.Direction.SOUTH)),
+        MOVE_SOUTHEAST(new MovementControl("Move SE", MovementControl.Direction.SOUTHEAST)),
         
-        WAIT(new MovementControl(MovementControl.Direction.NONE)),
+        WAIT(new MovementControl("Wait", MovementControl.Direction.NONE)),
         
         ;
         
