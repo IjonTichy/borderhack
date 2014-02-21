@@ -14,7 +14,7 @@ abstract public class Mode
 {
     protected Thinker       m_controller;
     protected Method        m_nextaction;
-    private   List<Control> m_controls;
+    protected List<Control> m_controls;
     
     public Mode()
     {

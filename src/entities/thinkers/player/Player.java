@@ -1,36 +1,64 @@
 package entities.thinkers.player;
 
+import org.jsfml.window.Keyboard.Key;
+
 import modes.player.PlayerMainMode;
 import anim.Animation;
 import anim.PlayerAnim;
 import controls.Control;
+import controls.KeyMapping;
 import entities.thinkers.Thinker;
 
 public class Player extends Thinker
 {
     public static enum PControl
     {
-        MOVE_NORTHWEST(new MovementControl("Move NW", MovementControl.Direction.NORTHWEST)),
-        MOVE_NORTH(    new MovementControl("Move N",  MovementControl.Direction.NORTH)),
-        MOVE_NORTHEAST(new MovementControl("Move NE", MovementControl.Direction.NORTHEAST)),
-        MOVE_WEST(     new MovementControl("Move W",  MovementControl.Direction.WEST)),
-        MOVE_EAST(     new MovementControl("Move E",  MovementControl.Direction.EAST)),
-        MOVE_SOUTHWEST(new MovementControl("Move SW", MovementControl.Direction.SOUTHWEST)),
-        MOVE_SOUTH(    new MovementControl("Move S",  MovementControl.Direction.SOUTH)),
-        MOVE_SOUTHEAST(new MovementControl("Move SE", MovementControl.Direction.SOUTHEAST)),
+        MOVE_NORTHWEST(new MovementControl("Move NW", MovementControl.Direction.NORTHWEST),
+                       new KeyMapping(Key.NUMPAD7, true)),
+                        
+        MOVE_NORTH(    new MovementControl("Move N",  MovementControl.Direction.NORTH),
+                       new KeyMapping(Key.NUMPAD8, true)),
+                
+        MOVE_NORTHEAST(new MovementControl("Move NE", MovementControl.Direction.NORTHEAST),
+                       new KeyMapping(Key.NUMPAD9, true)),
+                
+        MOVE_WEST(     new MovementControl("Move W",  MovementControl.Direction.WEST),
+                       new KeyMapping(Key.NUMPAD4, true)),
+                
+        MOVE_EAST(     new MovementControl("Move E",  MovementControl.Direction.EAST),
+                       new KeyMapping(Key.NUMPAD6, true)),
+                
+        MOVE_SOUTHWEST(new MovementControl("Move SW", MovementControl.Direction.SOUTHWEST),
+                       new KeyMapping(Key.NUMPAD1, true)),
+                
+        MOVE_SOUTH(    new MovementControl("Move S",  MovementControl.Direction.SOUTH),
+                       new KeyMapping(Key.NUMPAD2, true)),
+                
+        MOVE_SOUTHEAST(new MovementControl("Move SE", MovementControl.Direction.SOUTHEAST),
+                       new KeyMapping(Key.NUMPAD3, true)),
+                
         
-        WAIT(new MovementControl("Wait", MovementControl.Direction.NONE)),
+        WAIT(new MovementControl("Wait", MovementControl.Direction.NONE),
+             new KeyMapping(Key.NUMPAD5, true)),
         
         ;
         
         private Control c;
+        private KeyMapping k;
         
         private PControl(Control c)
         {
-            this.c = c;
+            this(c, null);
         }
         
-        public Control control() { return c; }
+        private PControl(Control c, KeyMapping k)
+        {
+            this.c = c;
+            this.k = k;
+        }
+        
+        public Control    control() { return c; }
+        public KeyMapping key()     { return k; }
     };
 
     @Override

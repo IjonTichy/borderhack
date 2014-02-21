@@ -16,6 +16,11 @@ public class KeyMapping
         this(key, upDown, false, false);
     }
     
+    public KeyMapping(KeyEvent key)
+    {
+        this(key.key, eventState(key), key.shift, key.control);
+    }
+    
     public KeyMapping(Keyboard.Key key, boolean upDown, boolean withShift, boolean withControl)
     {
         k_key       = key;
@@ -51,7 +56,7 @@ public class KeyMapping
         
         return ret;
     }
-    
+
     public boolean equals(KeyEvent other)
     {
         if (k_key     != other.key
@@ -63,12 +68,43 @@ public class KeyMapping
     }
     
     public boolean equals(KeyMapping other)
-    {
+    {   
         if (k_key     != other.k_key
          || k_state   != other.k_state
          || k_shift   != other.k_shift
          || k_control != other.k_control) { return false; }
                
         return true;
+    }
+
+    @Override
+    public boolean equals(Object other)
+    {
+        if (other instanceof KeyMapping) { return equals((KeyMapping)other); }
+        if (other instanceof KeyEvent)   { return equals((KeyEvent)other); }
+        return super.equals(other);
+    }
+    
+    public String toString()
+    {
+        StringBuilder ret = new StringBuilder();
+        
+        ret.append(this.getClass().getSimpleName());
+        ret.append("(");
+        ret.append(k_key.toString());
+        ret.append(", ");
+        ret.append(k_state);
+        
+        if (k_shift || k_control)
+        {
+            ret.append(", ");
+            ret.append(k_shift);
+            ret.append(", ");
+            ret.append(k_control);
+        }
+        
+        ret.append(")");
+        
+        return ret.toString();
     }
 }

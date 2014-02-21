@@ -1,9 +1,7 @@
 package instances;
 
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 
 import org.jsfml.graphics.RenderWindow;
@@ -11,6 +9,7 @@ import org.jsfml.window.event.Event;
 
 import controls.Control;
 import controls.ControlMapper;
+import controls.KeyMapping;
 import entities.thinkers.player.Player;
 import render.RenderMap;
 import map.GameMap;
@@ -38,16 +37,16 @@ public class MapInstance extends I_Instance
     {
         if (s_mi_controlmapper != null) { return; }
         
-        s_mi_controlmapper = new ControlMapper();
-        Set<Control> controls = new HashSet<>();        
+        s_mi_controlmapper = new ControlMapper();  
         
         for (Player.PControl p: Player.PControl.values())
         {
-            Control c = p.control();
-            controls.add(c);
+            Control    c = p.control();
+            KeyMapping k = p.key();
+            
+            s_mi_controlmapper.enableControl(c);
+            ControlMapper.addKey(k, c);
         }
-        
-        s_mi_controlmapper.enableControls(controls);
     }
     
     public I_Instance tick(List<Event> newEvents)

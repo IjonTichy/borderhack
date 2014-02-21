@@ -154,11 +154,32 @@ public class ControlMapper
     
     private Set<Control> matchedControls(KeyEvent key)
     {
-        Set<Control> controls = s_km_keymap.get(key);
+        KeyMapping km = new KeyMapping(key);
+        Set<Control> controls = s_km_keymap.get(km);
+        
         if (controls == null) { controls = new HashSet<>(); }
         
         Set<Control> out = new HashSet<>(km_enabled);
         out.retainAll(controls);
         return out;
+    }
+    
+    /**
+     * Debug method. Don't use this in production code.
+     */
+    public static void explainYourself()
+    {
+        System.out.println("Control mappings:");
+        
+        for (Map.Entry<KeyMapping, Set<Control>> e: s_km_keymap.entrySet())
+        {
+            System.out.println();
+            System.out.println("  " + e.getKey());
+            
+            for (Control c: e.getValue())
+            {
+                System.out.println("  * " + c);
+            }
+        }
     }
 }
