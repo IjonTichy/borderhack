@@ -35,6 +35,7 @@ public class GameWindow
         
         gamewin.create(gameres, "Borderhack: 8% of your recommended diet", RenderWindow.CLOSE | RenderWindow.TITLEBAR);
         gamewin.setFramerateLimit(Constants.FRAME_LIMIT);
+        gamewin.setKeyRepeatEnabled(false);
 
 
         gamewin.setActive(false);
