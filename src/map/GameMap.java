@@ -239,6 +239,16 @@ public class GameMap
     // == BLOCKMAP CONTROL
     // ====
     
+    private Vector2i blockPos(Vector2i p)
+    {
+        return blockPos(p.x, p.y);
+    }
+    
+    private Vector2i blockPos(int x, int y)
+    {
+        return new Vector2i(x / Constants.BLOCK_SIZE, y / Constants.BLOCK_SIZE);
+    }
+    
     private void addToBlock(Entity ent, int blockX, int blockY)
     {
         Vector2i blockpos = new Vector2i(blockX, blockY);
@@ -272,17 +282,15 @@ public class GameMap
         
         Vector2i entSize = ent.getSize();
 
-        // Subtract 1 from size because a dimension of 1 means "starts and ends on same time"
-        int topX = entPos.x / Constants.BLOCK_SIZE;
-        int topY = entPos.y / Constants.BLOCK_SIZE;
-        int botX = (topX + entSize.x - 1) / Constants.BLOCK_SIZE;
-        int botY = (topY + entSize.y - 1) / Constants.BLOCK_SIZE;
+        // Subtract 1 from size because a dimension of 1 means "starts and ends on same tile"
+        Vector2i top = blockPos(entPos.x,                 entPos.y);
+        Vector2i bot = blockPos(entPos.x + entSize.x - 1, entPos.y + entSize.y - 1);
         
         int x, y;
         
-        for (x = topX; x <= botX; x++)
+        for (x = top.x; x <= bot.x; x++)
         {
-            for (y = topY; y <= botY; y++)
+            for (y = top.y; y <= bot.y; y++)
             {
                 addToBlock(ent, x, y);
             }
@@ -296,5 +304,41 @@ public class GameMap
         
         removeFromBlockmap(ent);
         addToBlockmap(ent);
+    }
+    
+    // ====
+    // == COLLISION
+    // ====
+    
+    public List<Entity> collisions(int x, int y)
+    {
+        return collisions(new Vector2i(x, y));
+    }
+    
+    public List<Entity> collisions(Vector2i position)
+    {
+        List<Entity> colliding = new ArrayList<>();
+        Vector2i checkBlockPos = blockPos(position);
+        MapBlock checkBlock = map_blocks.get(checkBlockPos);
+        
+        for (Entity e: checkBlock.entsInBlock())
+        {
+            MapData  entData = map_entities.get(e);
+            Vector2i entSize = e.getSize();
+            
+            Vector2i entTop = new Vector2i(entData.x, entData.y);
+            Vector2i entBot = new Vector2i(entData.x + entSize.x - 1,
+                                           entData.y + entSize.y - 1);
+            
+            if (position.x < entTop.x || position.y < entTop.y
+             || position.x > entBot.x || position.y > entBot.y)
+            {
+                continue;
+            }
+            
+            colliding.add(e);
+        }
+        
+        return colliding;
     }
 }

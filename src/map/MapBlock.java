@@ -11,12 +11,12 @@ public class MapBlock
     
     public MapBlock()
     {
-        entities = new ArrayList<Entity>();
+        this(null);
     }
     
     public MapBlock(ArrayList<Entity> preEnts)
     {
-        entities = (ArrayList<Entity>)preEnts.clone();
+        entities = new ArrayList<Entity>(preEnts);
     }
     
     
@@ -58,7 +58,7 @@ public class MapBlock
      */
     public ArrayList<Entity> entsInBlock()
     {
-        return (ArrayList<Entity>)entities.clone();
+        return new ArrayList<Entity>(entities);
     }
     
     /**
