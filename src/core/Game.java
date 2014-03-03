@@ -41,16 +41,16 @@ public class Game implements Runnable
         
         int x, y;
         
-        for (x = 0; x < 5; x++)
+        for (x = 0; x < 16; x++)
         {
-            for (y = 0; y < 5; y++)
+            for (y = 0; y < 16; y++)
             {
                 MapData testMD  = new MapData(x, y);
                 Entity  testEnt = new TestWall();
                 
                 testmap.addToMap(testEnt, testMD);
                 
-                if (x == 0 || y == 0 || x == 4 || y == 4)
+                if (x == 0 || y == 0 || x == 15 || y == 15)
                 {
                     testEnt = new TestFloor();
                     testmap.addToMap(testEnt, testMD);

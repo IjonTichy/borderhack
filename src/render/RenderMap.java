@@ -286,6 +286,7 @@ public class RenderMap extends I_Renderer
         rWindow.setView(rView);
         rWindow.clear(Color.BLUE);
         
+        boolean doSmooth = render_zoom % 1.0 != 0;
         
         for (Map.Entry<Integer, Map<Texture, VertexArray>> layerEntry: renderMap.entrySet())
         {
@@ -296,9 +297,14 @@ public class RenderMap extends I_Renderer
                 Texture vertTex    = vertEntry.getKey();
                 VertexArray verts  = vertEntry.getValue();
                 RenderStates state = new RenderStates(vertTex);
+
+                boolean smooth = vertTex.isSmooth();
                 
+                if (smooth != doSmooth) { vertTex.setSmooth(doSmooth); }
                 
                 rWindow.draw(verts, state);
+                
+                if (smooth != doSmooth) { vertTex.setSmooth(smooth); }
             }
         }
         

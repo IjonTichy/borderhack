@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jsfml.graphics.Color;
 import org.jsfml.graphics.Image;
 import org.jsfml.graphics.IntRect;
 import org.jsfml.graphics.Texture;
@@ -120,9 +121,14 @@ public class ResourceStorage
         {
             for (x = 0; x < xframes; x++)
             {
-                Texture next = new Texture();
+                Image paddedFrame = new Image();
                 IntRect rect = new IntRect(x * frameSize.x, y * frameSize.y, frameSize.x, frameSize.y);
-                next.loadFromImage(rawimg, rect);
+                
+                paddedFrame.create(frameSize.x + 2, frameSize.y + 2, Color.TRANSPARENT);
+                paddedFrame.copy(rawimg, 1, 1, rect, false);
+                
+                Texture next = new Texture();
+                next.loadFromImage(paddedFrame);
                 frames.add(next);
             }
         }
