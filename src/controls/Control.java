@@ -15,4 +15,17 @@ public class Control
     }
     
     public String getName() { return c_name; }
+    
+    
+    public String toString()
+    {
+        StringBuilder ret = new StringBuilder();
+        
+        ret.append(this.getClass().getSimpleName());
+        ret.append("(\"");
+        ret.append(c_name);
+        ret.append("\")");
+        
+        return ret.toString();
+    }
 }

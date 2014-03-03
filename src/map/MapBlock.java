@@ -16,7 +16,8 @@ public class MapBlock
     
     public MapBlock(ArrayList<Entity> preEnts)
     {
-        entities = new ArrayList<Entity>(preEnts);
+        entities = new ArrayList<Entity>();
+        if (preEnts != null) { entities.addAll(preEnts); }
     }
     
     

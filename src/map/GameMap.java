@@ -40,15 +40,17 @@ public class GameMap
 
     public GameMap(String name)
     {
-        map_name = name;
-        map_entities     = new HashMap<>();
-        map_modeTicks    = new HashMap<>();
+        this(name, null);
     }
     
     public GameMap(String name, Map<Entity, MapData> ents)
     {
-        this(name);
-        map_entities.putAll(ents);
+        map_name = name;
+        map_entities     = new HashMap<>();
+        map_modeTicks    = new HashMap<>();
+        map_blocks       = new HashMap<>();
+        
+        if (ents != null) { map_entities.putAll(ents); }
     }
     
     // ====
@@ -307,7 +309,7 @@ public class GameMap
     }
     
     // ====
-    // == COLLISION
+    // == COLLISION AND MOVEMENT
     // ====
     
     public List<Entity> collisions(int x, int y)
@@ -340,5 +342,39 @@ public class GameMap
         }
         
         return colliding;
+    }
+    
+    public void move(Entity toMove, Vector2i delta)
+    {
+        move(toMove, delta, false);
+    }
+    
+    public void move(Entity toMove, Vector2i delta, boolean collide)
+    {
+        MapData curPos = map_entities.get(toMove);
+        if (curPos == null) { return; }
+        put(toMove, new Vector2i(curPos.x + delta.x, curPos.y + delta.y), collide);
+    }
+    
+    public void put(Entity toPut, Vector2i newPos)
+    {
+        put(toPut, newPos, false);
+    }
+    
+    public void put(Entity toPut, Vector2i newPos, boolean collide)
+    {
+        MapData  curPos = map_entities.get(toPut);
+        Vector2i endPos;
+        if (curPos == null) { return; }
+
+        //if (collide == false)
+        if (true)  // will do collision later
+        {
+            endPos = newPos;
+        }
+        
+        curPos.x = endPos.x;
+        curPos.y = endPos.y;
+        recalcBlocks(toPut);
     }
 }
