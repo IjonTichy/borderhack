@@ -299,7 +299,6 @@ public class GameMap
         }
     }
     
-    @SuppressWarnings("unused")
     private void recalcBlocks(Entity ent)
     {
         if (!map_entities.containsKey(ent)) { return; }
@@ -346,7 +345,7 @@ public class GameMap
     
     public void move(Entity toMove, Vector2i delta)
     {
-        move(toMove, delta, false);
+        move(toMove, delta, true);
     }
     
     public void move(Entity toMove, Vector2i delta, boolean collide)
