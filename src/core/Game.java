@@ -37,8 +37,6 @@ public class Game implements Runnable
         GameMap testmap = new GameMap("test map");
         Player  testply = new Player();
         
-        
-        
         int x, y;
         
         for (x = 0; x < 16; x++)
