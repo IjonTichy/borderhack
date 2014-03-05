@@ -9,8 +9,10 @@ import map.GameMap;
 import map.MapData;
 
 import org.jsfml.graphics.RenderWindow;
+import org.jsfml.system.Vector3i;
 import org.jsfml.window.event.Event;
 
+import util.Line3D;
 import entities.Entity;
 import entities.TestFloor;
 import entities.TestWall;

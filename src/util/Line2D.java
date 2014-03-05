@@ -13,8 +13,13 @@ public class Line2D
     
     public Line2D(int x1, int y1, int x2, int y2)
     {
-        start = new Vector2f(x1, y1);
-        end   = new Vector2f(x2, y2);
+        this(new Vector2f(x1, y1), new Vector2f(x2, y2));
+    }
+    
+    public Line2D(Vector2f start, Vector2f end)
+    {
+        this.start = start;
+        this.end   = end;
     }
     
     public List<Vector2i> bresenham()
@@ -32,44 +37,6 @@ public class Line2D
         return bresenham(new Vector2i(Math.round(start.x), Math.round(start.y)),
                          new Vector2i(Math.round(end.x),   Math.round(end.y)  ));
     }
-    
-    /*
-
-def get_line(x1, y1, x2, y2):
-    points = []
-    issteep = abs(y2-y1) > abs(x2-x1)
-    if issteep:
-        x1, y1 = y1, x1
-        x2, y2 = y2, x2
-    rev = False
-    if x1 > x2:
-        x1, x2 = x2, x1
-        y1, y2 = y2, y1
-        rev = True
-    deltax = x2 - x1
-    deltay = abs(y2-y1)
-    error = int(deltax / 2)
-    y = y1
-    ystep = None
-    if y1 < y2:
-        ystep = 1
-    else:
-        ystep = -1
-    for x in range(x1, x2 + 1):
-        if issteep:
-            points.append((y, x))
-        else:
-            points.append((x, y))
-        error -= deltay
-        if error < 0:
-            y += ystep
-            error += deltax
-    # Reverse the list if the coordinates were reversed
-    if rev:
-        points.reverse()
-    return points
-    
-     */
     
     public static List<Vector2i> bresenham(Vector2i start, Vector2i end)
     {
