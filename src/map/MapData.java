@@ -1,5 +1,7 @@
 package map;
 
+import org.jsfml.system.Vector3i;
+
 /**
  * Stores the X and Y position of an Entity.
  * 
@@ -12,21 +14,34 @@ public class MapData
 {
     public int x;
     public int y;
+    public int z;
     
     public MapData()
     {
-        this(0, 0);
+        this(0, 0, 0);
     }
     
     public MapData(int x, int y)
     {
+        this(x, y, 0);
+    }
+    
+    public MapData(int x, int y, int z)
+    {
         this.x = x;
         this.y = y;
+        this.z = z;
     }
     
     public MapData(MapData m)
     {
         this.x = m.x;
         this.y = m.y;
+        this.z = m.z;
+    }
+
+    public Vector3i toVector3i()
+    {
+        return new Vector3i(x, y, z);
     }
 }

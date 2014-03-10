@@ -1,6 +1,7 @@
 package entities;
 
 import org.jsfml.system.Vector2i;
+import org.jsfml.system.Vector3i;
 
 import anim.AnimData;
 import anim.Animation;
@@ -14,6 +15,7 @@ abstract public class Entity
     protected int           ent_layer;
     protected int           ent_size_x;
     protected int           ent_size_y;
+    protected int           ent_size_z;
     protected Animation     ent_anim;
 
     protected float         ent_health;
@@ -29,6 +31,7 @@ abstract public class Entity
         ent_layer   = 0;
         ent_size_x  = 1;
         ent_size_y  = 1;
+        ent_size_z  = 1;
         ent_health  = 1000;
         
         defaults();
@@ -60,9 +63,9 @@ abstract public class Entity
     public abstract Animation defaultAnimation();
 
 
-    public Vector2i getSize()
+    public Vector3i getSize()
     {
-        return new Vector2i(this.ent_size_x, this.ent_size_y);
+        return new Vector3i(this.ent_size_x, this.ent_size_y, this.ent_size_z);
     }
 
     /**

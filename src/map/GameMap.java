@@ -9,11 +9,13 @@ import java.util.Map;
 import modes.Mode;
 
 import org.jsfml.system.Vector2i;
+import org.jsfml.system.Vector3i;
 
 import entities.Entity;
 import entities.thinkers.Thinker;
 import controls.Control;
 import util.Constants;
+import util.Line3D;
 
 /**
  * <p>The game map! Everything in the game happens here.</p>
@@ -240,12 +242,7 @@ public class GameMap
     // ====
     // == BLOCKMAP CONTROL
     // ====
-    
-    private Vector2i blockPos(Vector2i p)
-    {
-        return blockPos(p.x, p.y);
-    }
-    
+
     private Vector2i blockPos(int x, int y)
     {
         return new Vector2i(x / Constants.BLOCK_SIZE, y / Constants.BLOCK_SIZE);
@@ -282,7 +279,7 @@ public class GameMap
         MapData entPos = map_entities.get(ent);
         if (entPos == null) { return; }
         
-        Vector2i entSize = ent.getSize();
+        Vector3i entSize = ent.getSize();
 
         // Subtract 1 from size because a dimension of 1 means "starts and ends on same tile"
         Vector2i top = blockPos(entPos.x,                 entPos.y);
@@ -311,28 +308,29 @@ public class GameMap
     // == COLLISION AND MOVEMENT
     // ====
     
-    public List<Entity> collisions(int x, int y)
+    public List<Entity> collisions(int x, int y, int z)
     {
-        return collisions(new Vector2i(x, y));
+        return collisions(new Vector3i(x, y, z));
     }
     
-    public List<Entity> collisions(Vector2i position)
+    public List<Entity> collisions(Vector3i position)
     {
         List<Entity> colliding = new ArrayList<>();
-        Vector2i checkBlockPos = blockPos(position);
+        Vector2i checkBlockPos = blockPos(position.x, position.y);
         MapBlock checkBlock = map_blocks.get(checkBlockPos);
         
         for (Entity e: checkBlock.entsInBlock())
         {
             MapData  entData = map_entities.get(e);
-            Vector2i entSize = e.getSize();
+            Vector3i entSize = e.getSize();
             
-            Vector2i entTop = new Vector2i(entData.x, entData.y);
-            Vector2i entBot = new Vector2i(entData.x + entSize.x - 1,
-                                           entData.y + entSize.y - 1);
+            Vector3i entTop = new Vector3i(entData.x, entData.y, entData.z);
+            Vector3i entBot = new Vector3i(entData.x + entSize.x - 1,
+                                           entData.y + entSize.y - 1,
+                                           entData.z + entSize.z - 1);
             
-            if (position.x < entTop.x || position.y < entTop.y
-             || position.x > entBot.x || position.y > entBot.y)
+            if (position.x < entTop.x || position.y < entTop.y || position.z < entTop.z
+             || position.x > entBot.x || position.y > entBot.y || position.z > entBot.z)
             {
                 continue;
             }
@@ -352,28 +350,43 @@ public class GameMap
     {
         MapData curPos = map_entities.get(toMove);
         if (curPos == null) { return; }
-        put(toMove, new Vector2i(curPos.x + delta.x, curPos.y + delta.y), collide);
+        put(toMove, new Vector3i(curPos.x + delta.x, curPos.y + delta.y, 0), collide);
     }
     
-    public void put(Entity toPut, Vector2i newPos)
+    public void put(Entity toPut, Vector3i newPos)
     {
         put(toPut, newPos, false);
     }
     
-    public void put(Entity toPut, Vector2i newPos, boolean collide)
+    public void put(Entity toPut, Vector3i newPos, boolean collide)
     {
         MapData  curPos = map_entities.get(toPut);
-        Vector2i endPos;
+        Vector3i endPos = null;
         if (curPos == null) { return; }
 
-        //if (collide == false)
-        if (true)  // will do collision later
+        if (collide == false)
         {
             endPos = newPos;
+        }
+        else
+        {
+            List<Vector3i> midpoints = Line3D.bresenham(curPos.toVector3i(), newPos);
+            
+            Vector3i prevPos = midpoints.get(0);
+            
+            for (Vector3i pos: midpoints.subList(1, midpoints.size()))
+            {
+                List<Entity> collides = collisions(pos);
+                if (collides.size() > 0) { endPos = prevPos; }
+                prevPos = pos;
+            }
+            
+            if (endPos == null) { endPos = prevPos; }
         }
         
         curPos.x = endPos.x;
         curPos.y = endPos.y;
+        curPos.z = endPos.z;
         recalcBlocks(toPut);
     }
 }
