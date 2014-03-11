@@ -51,13 +51,13 @@ public class Game implements Runnable
                 if (x == 0 || y == 0 || x == 15 || y == 15)
                 {
                     testEnt = new TestFloor();
-                    testmap.addToMap(testEnt, testMD);
+                    testmap.addToMap(testEnt, new MapData(x, y, 1));
                 }
             }
         }
         
         testmap.addToMap(new TestThinker(), new MapData(1, 1));
-        testmap.addToMap(testply, new MapData(2, 2));
+        testmap.addToMap(testply, new MapData(2, 2, 1));
         
         I_Instance gameInstance = new MapInstance(gameWindow, events, testmap);
         

@@ -345,16 +345,19 @@ public class GameMap
         return colliding;
     }
     
-    public void move(Entity toMove, Vector2i delta)
-    {
-        move(toMove, delta, true);
-    }
+    public void move(Entity toMove, Vector2i delta) { move(toMove, delta, true); }
+    public void move(Entity toMove, Vector3i delta) { move(toMove, delta, true); }
     
     public void move(Entity toMove, Vector2i delta, boolean collide)
     {
+        move(toMove, new Vector3i(delta.x, delta.y, 0), collide);
+    }
+    
+    public void move(Entity toMove, Vector3i delta, boolean collide)
+    {
         MapData curPos = map_entities.get(toMove);
         if (curPos == null) { return; }
-        put(toMove, new Vector3i(curPos.x + delta.x, curPos.y + delta.y, 0), collide);
+        put(toMove, new Vector3i(curPos.x + delta.x, curPos.y + delta.y, delta.z + curPos.z), collide);
     }
     
     public void put(Entity toPut, Vector3i newPos)
