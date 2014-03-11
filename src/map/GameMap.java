@@ -21,7 +21,8 @@ import util.Line3D;
  * <p>The game map! Everything in the game happens here.</p>
  * 
  * <p>This holds animations and entities for the map, as well as absolute times
- * for modes to run, and handles sending controls to the thinkers in it.</p>
+ * for modes to run, and handles sending controls to the thinkers in it, as well
+ * as collisions inside it..</p>
  * 
  *  Some units:
  *  <ul>
@@ -59,23 +60,46 @@ public class GameMap
     // == GETTERS
     // ====
     
+    /**
+     * Get all the entities in the map.
+     * @return I WONDER.
+     */
     public List<Entity> getAllEntities()
     {
         return new ArrayList<Entity>(map_entities.keySet());
     }
     
-    public Vector2i getPosition(Entity ent)
+    /**
+     * Gets the position of the entity.
+     * @param ent   The entity to get the position of.
+     * @return Its position WOAH.
+     */
+    public Vector3i getPosition(Entity ent)
     {
         MapData data = map_entities.get(ent);
         if (data == null) { return null; }
         
-        return new Vector2i(data.x, data.y);
+        return new Vector3i(data.x, data.y, data.z);
     }
 
+    /**
+     * Gets the name of the map.
+     * @return GUESS.
+     */
     public String getMapName() { return map_name; }
+    
+    /**
+     * Gets the tick of the map.
+     * @return GUESS.
+     */
     public long getTick() { return map_tick; }
     
-    
+
+    /**
+     * Run some ticks on the map.
+     * @param tickCount     How many ticks to run. If 0, runs to the next action.
+     * @return  The tick the map ends on.
+     */
     public long doTicks(long tickCount)
     {
         if (tickCount == 0) { thinkNext(); }
@@ -88,12 +112,23 @@ public class GameMap
     // == ENTITY CONTROL
     // ====
     
+    /**
+     * Add an entity to the map at the coordinates (0, 0, 0).
+     * @param ent   The entity to add.
+     * @return  Whether the entity was added to the map.
+     */
     public boolean addToMap(Entity ent)
     {
-        MapData pos = new MapData(0, 0);
+        MapData pos = new MapData(0, 0, 0);
         return addToMap(ent, pos);
     }
-    
+
+    /**
+     * Add an entity to the map.
+     * @param ent   The entity to add.
+     * @param pos   The position of the entity.
+     * @return  Whether the entity was added to the map.
+     */
     public boolean addToMap(Entity ent, MapData pos)
     {
         if (map_entities.containsKey(ent))
@@ -108,7 +143,12 @@ public class GameMap
         
         return true;
     }
-    
+
+    /**
+     * Removes an entity from the map.
+     * @param ent   The entity to remove.
+     * @return  Whether the entity was removed from the map.
+     */
     public boolean removeFromMap(Entity ent)
     {
         if (map_entities.containsKey(ent))
@@ -226,7 +266,11 @@ public class GameMap
     // == CONTROL... CONTROL
     // ====
     
-    public void getControls(List<Control> controls)
+    /**
+     * Sends the given controls to every thinker on the map.
+     * @param controls  The controls to send.
+     */
+    public void sendControls(List<Control> controls)
     {
         for (Entity e: map_entities.keySet())
         {
@@ -308,12 +352,25 @@ public class GameMap
     // ====
     // == COLLISION AND MOVEMENT
     // ====
-    
+
+    /**
+     * Gets all the entities that could collide at the given position.
+     * @param x     The X coordinate to check collisions against.
+     * @param y     The Y coordinate to check collisions against.
+     * @param z     The Z coordinate to check collisions against.
+     * 
+     * @return  All the entities on that point.
+     */
     public List<Entity> collisions(int x, int y, int z)
     {
         return collisions(new Vector3i(x, y, z));
     }
     
+    /**
+     * Gets all the entities that could collide at the given position.
+     * @param position  The point to check collisions against.
+     * @return  All the entities on that point.
+     */
     public List<Entity> collisions(Vector3i position)
     {
         List<Entity> colliding = new ArrayList<>();
@@ -345,31 +402,70 @@ public class GameMap
         return colliding;
     }
     
-    public void move(Entity toMove, Vector2i delta) { move(toMove, delta, true); }
-    public void move(Entity toMove, Vector3i delta) { move(toMove, delta, true); }
-    
-    public void move(Entity toMove, Vector2i delta, boolean collide)
+    /**
+     * Moves an entity on the XY plane.
+     * @param toMove    The entity to move.
+     * @param delta     How much to move the entity.
+     * @return the new position of the entity.
+     */
+    public Vector3i move(Entity toMove, Vector2i delta) { return move(toMove, delta, true); }
+
+    /**
+     * Moves an entity on all three dimensions.
+     * @param toMove    The entity to move.
+     * @param delta     How much to move the entity.
+     * @return the new position of the entity.
+     */
+    public Vector3i move(Entity toMove, Vector3i delta) { return move(toMove, delta, true); }
+
+    /**
+     * Moves an entity on the XY plane.
+     * @param toMove    The entity to move.
+     * @param delta     How much to move the entity.
+     * @param collide   Whether to do collision or not.
+     * @return the new position of the entity.
+     */
+    public Vector3i move(Entity toMove, Vector2i delta, boolean collide)
     {
-        move(toMove, new Vector3i(delta.x, delta.y, 0), collide);
+        return move(toMove, new Vector3i(delta.x, delta.y, 0), collide);
     }
-    
-    public void move(Entity toMove, Vector3i delta, boolean collide)
+
+    /**
+     * Moves an entity on all three dimensions.
+     * @param toMove    The entity to move.
+     * @param delta     How much to move the entity.
+     * @param collide   Whether to do collision or not.
+     * @return the new position of the entity.
+     */
+    public Vector3i move(Entity toMove, Vector3i delta, boolean collide)
     {
         MapData curPos = map_entities.get(toMove);
-        if (curPos == null) { return; }
-        put(toMove, new Vector3i(curPos.x + delta.x, curPos.y + delta.y, delta.z + curPos.z), collide);
+        return put(toMove, new Vector3i(curPos.x + delta.x, curPos.y + delta.y, delta.z + curPos.z), collide);
     }
-    
-    public void put(Entity toPut, Vector3i newPos)
+
+    /**
+     * Puts an entity at a specific coordinate.
+     * @param toPut     The entity to move.
+     * @param newPos    Where to move the entity.
+     * @return the new position of the entity.
+     */
+    public Vector3i put(Entity toPut, Vector3i newPos)
     {
-        put(toPut, newPos, false);
+        return put(toPut, newPos, false);
     }
-    
-    public void put(Entity toPut, Vector3i newPos, boolean collide)
+
+    /**
+     * Puts an entity at a specific coordinate.
+     * @param toPut     The entity to move.
+     * @param newPos    Where to move the entity.
+     * @param collide   Whether to do collision or not.
+     * @return the new position of the entity.
+     */
+    public Vector3i put(Entity toPut, Vector3i newPos, boolean collide)
     {
         MapData  curPos = map_entities.get(toPut);
         Vector3i endPos = null;
-        if (curPos == null) { return; }
+        if (curPos == null) { return null; }
 
         if (collide == false)
         {
@@ -395,5 +491,7 @@ public class GameMap
         curPos.y = endPos.y;
         curPos.z = endPos.z;
         recalcBlocks(toPut);
+        
+        return endPos;
     }
 }

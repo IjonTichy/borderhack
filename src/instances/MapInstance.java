@@ -52,7 +52,7 @@ public class MapInstance extends I_Instance
     public I_Instance tick(List<Event> newEvents)
     {
         List<Control> outEvents = s_mi_controlmapper.interpretKeys(newEvents);
-        mi_map.getControls(outEvents);
+        mi_map.sendControls(outEvents);
         
         mi_map.doTicks(0);
         return this;
