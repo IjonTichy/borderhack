@@ -406,26 +406,26 @@ public class GameMap
      * Moves an entity on the XY plane.
      * @param toMove    The entity to move.
      * @param delta     How much to move the entity.
-     * @return the new position of the entity.
+     * @return how many tiles the entity moved.
      */
-    public Vector3i move(Entity toMove, Vector2i delta) { return move(toMove, delta, true); }
+    public int move(Entity toMove, Vector2i delta) { return move(toMove, delta, true); }
 
     /**
      * Moves an entity on all three dimensions.
      * @param toMove    The entity to move.
      * @param delta     How much to move the entity.
-     * @return the new position of the entity.
+     * @return how many tiles the entity moved.
      */
-    public Vector3i move(Entity toMove, Vector3i delta) { return move(toMove, delta, true); }
+    public int move(Entity toMove, Vector3i delta) { return move(toMove, delta, true); }
 
     /**
      * Moves an entity on the XY plane.
      * @param toMove    The entity to move.
      * @param delta     How much to move the entity.
      * @param collide   Whether to do collision or not.
-     * @return the new position of the entity.
+     * @return how many tiles the entity moved.
      */
-    public Vector3i move(Entity toMove, Vector2i delta, boolean collide)
+    public int move(Entity toMove, Vector2i delta, boolean collide)
     {
         return move(toMove, new Vector3i(delta.x, delta.y, 0), collide);
     }
@@ -435,9 +435,9 @@ public class GameMap
      * @param toMove    The entity to move.
      * @param delta     How much to move the entity.
      * @param collide   Whether to do collision or not.
-     * @return the new position of the entity.
+     * @return how many tiles the entity moved.
      */
-    public Vector3i move(Entity toMove, Vector3i delta, boolean collide)
+    public int move(Entity toMove, Vector3i delta, boolean collide)
     {
         MapData curPos = map_entities.get(toMove);
         return put(toMove, new Vector3i(curPos.x + delta.x, curPos.y + delta.y, delta.z + curPos.z), collide);
@@ -447,9 +447,9 @@ public class GameMap
      * Puts an entity at a specific coordinate.
      * @param toPut     The entity to move.
      * @param newPos    Where to move the entity.
-     * @return the new position of the entity.
+     * @return how many tiles the entity moved.
      */
-    public Vector3i put(Entity toPut, Vector3i newPos)
+    public int put(Entity toPut, Vector3i newPos)
     {
         return put(toPut, newPos, false);
     }
@@ -459,28 +459,31 @@ public class GameMap
      * @param toPut     The entity to move.
      * @param newPos    Where to move the entity.
      * @param collide   Whether to do collision or not.
-     * @return the new position of the entity.
+     * @return how many tiles the entity moved.
      */
-    public Vector3i put(Entity toPut, Vector3i newPos, boolean collide)
+    public int put(Entity toPut, Vector3i newPos, boolean collide)
     {
         MapData  curPos = map_entities.get(toPut);
         Vector3i endPos = null;
-        if (curPos == null) { return null; }
+        if (curPos == null) { return 0; }
+
+        int ret = 0;
+        List<Vector3i> midpoints = Line3D.bresenham(curPos.toVector3i(), newPos);
 
         if (collide == false)
         {
             endPos = newPos;
+            ret = midpoints.size();
         }
         else
         {
-            List<Vector3i> midpoints = Line3D.bresenham(curPos.toVector3i(), newPos);
-            
             Vector3i prevPos = midpoints.get(0);
             
             for (Vector3i pos: midpoints.subList(1, midpoints.size()))
             {
+                ret++;
                 List<Entity> collides = collisions(pos);
-                if (collides.size() > 0) { endPos = prevPos; }
+                if (collides.size() > 0) { endPos = prevPos; break; }
                 prevPos = pos;
             }
             
@@ -492,6 +495,6 @@ public class GameMap
         curPos.z = endPos.z;
         recalcBlocks(toPut);
         
-        return endPos;
+        return ret;
     }
 }
