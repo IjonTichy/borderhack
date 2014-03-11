@@ -104,6 +104,7 @@ public class GameMap
         
         map_entities.put(ent, new MapData(pos));
         if (ent instanceof Thinker) { registerThinkerModes((Thinker)ent); }
+        addToBlockmap(ent);
         
         return true;
     }
@@ -318,6 +319,9 @@ public class GameMap
         List<Entity> colliding = new ArrayList<>();
         Vector2i checkBlockPos = blockPos(position.x, position.y);
         MapBlock checkBlock = map_blocks.get(checkBlockPos);
+        
+        System.out.println("checkBlock is " + checkBlock);
+        if (checkBlock == null) { return colliding; }
         
         for (Entity e: checkBlock.entsInBlock())
         {

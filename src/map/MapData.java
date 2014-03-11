@@ -3,9 +3,9 @@ package map;
 import org.jsfml.system.Vector3i;
 
 /**
- * Stores the X and Y position of an Entity.
+ * Stores the position of an Entity.
  * 
- * Right now, it looks like a less featureful version of Vector2i.
+ * Right now, it looks like a less featureful version of Vector3i.
  * This is here in case the map needs to store more information about an entity
  * that is not part of the entity itself. Makes life easier.
  *

@@ -51,7 +51,6 @@ public class Line3D
         for (Vector2i zpos: z_bresenham)
         {
             int xyindex = zpos.x;
-            System.out.println("xyindex is " + xyindex + " (size " + pointCount + ")");
             
             Vector2i xypos = xy_bresenham.get(xyindex);
             Vector3i nextPos = new Vector3i(xypos.x, xypos.y, zpos.y);
