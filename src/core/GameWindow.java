@@ -33,7 +33,7 @@ public class GameWindow
         VideoMode    gameres            = new VideoMode(1024, 768);
         BlockingQueue<Event> evQueue    = new LinkedBlockingQueue<Event>();
         
-        gamewin.create(gameres, "Borderhack: 8% of your recommended diet", RenderWindow.CLOSE | RenderWindow.TITLEBAR);
+        gamewin.create(gameres, "Borderhack: 10% of your recommended diet", RenderWindow.CLOSE | RenderWindow.TITLEBAR);
         gamewin.setFramerateLimit(Constants.FRAME_LIMIT);
         gamewin.setKeyRepeatEnabled(false);
 
