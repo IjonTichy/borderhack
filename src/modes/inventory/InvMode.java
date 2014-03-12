@@ -3,7 +3,7 @@ package modes.inventory;
 import java.lang.reflect.Method;
 
 import util.ActionUnavailableException;
-import entities.thinkers.inventory.Inventory;
+import entities.inventory.Inventory;
 import map.GameMap;
 import modes.Mode;
 

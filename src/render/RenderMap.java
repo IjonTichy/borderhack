@@ -5,6 +5,7 @@ import map.GameMap;
 import org.jsfml.graphics.*;
 import org.jsfml.system.Vector2f;
 import org.jsfml.system.Vector2i;
+import org.jsfml.system.Vector3i;
 import org.jsfml.window.ContextActivationException;
 import org.jsfml.window.Mouse;
 import org.jsfml.window.event.Event;
@@ -110,7 +111,7 @@ public class RenderMap extends I_Renderer
         {   
             if (ent == null) { continue; }  // dunno how that happened but okay
             
-            Vector2i position = map.getPosition(ent);
+            Vector3i position = map.getPosition(ent);
             int x = position.x * Constants.TILE_WIDTH;
             int y = position.y * Constants.TILE_HEIGHT;
                 

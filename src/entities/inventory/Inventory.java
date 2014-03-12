@@ -1,11 +1,11 @@
-package entities.thinkers.inventory;
+package entities.inventory;
 
 import java.util.List;
 
-import entities.thinkers.Thinker;
+import entities.Entity;
 import modes.inventory.InvMode;
 
-abstract public class Inventory extends Thinker
+abstract public class Inventory extends Entity
 {
     /**
      * Inventory modes. They run when an inventory item is in your inventory.

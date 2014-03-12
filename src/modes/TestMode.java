@@ -1,11 +1,11 @@
 package modes;
 
-import entities.thinkers.Thinker;
+import entities.Entity;
 import map.GameMap;
 
 public class TestMode extends Mode
 {
-    public TestMode(Thinker e)
+    public TestMode(Entity e)
     {
         super(e);
     }

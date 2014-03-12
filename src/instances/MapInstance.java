@@ -10,7 +10,7 @@ import org.jsfml.window.event.Event;
 import controls.Control;
 import controls.ControlMapper;
 import controls.KeyMapping;
-import entities.thinkers.player.Player;
+import entities.player.Player;
 import render.RenderMap;
 import map.GameMap;
 

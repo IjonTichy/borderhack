@@ -13,9 +13,9 @@ import org.jsfml.window.event.Event;
 
 import entities.Entity;
 import entities.TestFloor;
+import entities.TestThinker;
 import entities.TestWall;
-import entities.thinkers.TestThinker;
-import entities.thinkers.player.Player;
+import entities.player.Player;
 
 public class Game implements Runnable
 {

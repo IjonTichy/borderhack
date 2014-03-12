@@ -1,4 +1,4 @@
-package entities.thinkers.player;
+package entities.player;
 
 import controls.Control;
 

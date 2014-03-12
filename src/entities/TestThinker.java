@@ -1,10 +1,10 @@
-package entities.thinkers;
+package entities;
 
 import modes.TestMode;
 import anim.Animation;
 import anim.ThinkerAnim;
 
-public class TestThinker extends Thinker
+public class TestThinker extends Entity
 {
     protected void init()
     {

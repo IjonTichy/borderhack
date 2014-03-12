@@ -7,12 +7,12 @@ import java.util.List;
 
 import util.ActionUnavailableException;
 import map.GameMap;
-import entities.thinkers.Thinker;
+import entities.Entity;
 import controls.Control;
 
 abstract public class Mode
 {
-    protected Thinker       m_controller;
+    protected Entity       m_controller;
     protected Method        m_nextaction;
     protected List<Control> m_controls;
     
@@ -21,7 +21,7 @@ abstract public class Mode
         this(null);
     }
     
-    public Mode(Thinker e)
+    public Mode(Entity e)
     {
         m_controller = e;
         m_nextaction = null;
@@ -54,7 +54,7 @@ abstract public class Mode
         return ret;   
     }
     
-    public Thinker getController()
+    public Entity getController()
     {
         return m_controller;
     }

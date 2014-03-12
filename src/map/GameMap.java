@@ -12,7 +12,6 @@ import org.jsfml.system.Vector2i;
 import org.jsfml.system.Vector3i;
 
 import entities.Entity;
-import entities.thinkers.Thinker;
 import controls.Control;
 import util.Constants;
 import util.Line3D;
@@ -138,7 +137,7 @@ public class GameMap
         }
         
         map_entities.put(ent, new MapData(pos));
-        if (ent instanceof Thinker) { registerThinkerModes((Thinker)ent); }
+        registerModes(ent);
         addToBlockmap(ent);
         
         return true;
@@ -163,7 +162,7 @@ public class GameMap
             return true;
         }
 
-        if (ent instanceof Thinker) { unregisterThinkerModes((Thinker)ent); }
+        unregisterModes(ent);
         return false;
     }
     
@@ -171,7 +170,7 @@ public class GameMap
     // == MODE CONTROL
     // ====
     
-    private void registerThinkerModes(Thinker t)
+    private void registerModes(Entity t)
     {
         for (Map.Entry<Mode, Long> e: t.getModes().entrySet())
         {
@@ -179,7 +178,7 @@ public class GameMap
         }
     }
     
-    private void unregisterThinkerModes(Thinker t)
+    private void unregisterModes(Entity t)
     {
         for (Mode m: t.getModes().keySet())
         {
@@ -232,11 +231,7 @@ public class GameMap
         
         for (Entity e: map_entities.keySet())
         {
-            if (e instanceof Thinker)
-            {
-                Thinker t = (Thinker)e;
-                newModes.putAll(t.think(next - map_tick, this));
-            }
+            newModes.putAll(e.think(next - map_tick, this));
         }
         
         for (Map.Entry<Mode, Long> e: newModes.entrySet())
@@ -251,11 +246,7 @@ public class GameMap
 
         for (Entity e: map_entities.keySet())
         {
-            if (e instanceof Thinker)
-            {
-                Thinker t = (Thinker)e;
-                t.tickDown(shortest - map_tick);
-            }
+            e.tickDown(shortest - map_tick);
         }
 
         map_tick = shortest;
@@ -274,10 +265,7 @@ public class GameMap
     {
         for (Entity e: map_entities.keySet())
         {
-            if (!(e instanceof Thinker)) { continue; }
-            Thinker t = (Thinker)e;
-            
-            for (Mode m: t.getModes().keySet())
+            for (Mode m: e.getModes().keySet())
             {
                 m.giveControls(controls);
             }
@@ -377,7 +365,6 @@ public class GameMap
         Vector2i checkBlockPos = blockPos(position.x, position.y);
         MapBlock checkBlock = map_blocks.get(checkBlockPos);
         
-        System.out.println("checkBlock is " + checkBlock);
         if (checkBlock == null) { return colliding; }
         
         for (Entity e: checkBlock.entsInBlock())

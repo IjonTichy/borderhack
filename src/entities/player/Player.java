@@ -1,4 +1,4 @@
-package entities.thinkers.player;
+package entities.player;
 
 import org.jsfml.window.Keyboard.Key;
 
@@ -7,9 +7,9 @@ import anim.Animation;
 import anim.PlayerAnim;
 import controls.Control;
 import controls.KeyMapping;
-import entities.thinkers.Thinker;
+import entities.Entity;
 
-public class Player extends Thinker
+public class Player extends Entity
 {
     public static enum PControl
     {

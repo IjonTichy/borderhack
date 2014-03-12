@@ -1,8 +1,17 @@
 package entities;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import map.GameMap;
+import modes.Mode;
+
 import org.jsfml.system.Vector2i;
 import org.jsfml.system.Vector3i;
 
+import entities.inventory.Inventory;
 import anim.AnimData;
 import anim.Animation;
 import render.RenderQuad;
@@ -19,6 +28,9 @@ abstract public class Entity
     protected Animation     ent_anim;
 
     protected float         ent_health;
+
+    protected Map<Mode, Long> ent_modes;
+    protected List<Inventory> ent_inventory;
     
     
     /**
@@ -33,9 +45,11 @@ abstract public class Entity
         ent_size_y  = 1;
         ent_size_z  = 1;
         ent_health  = 1000;
+        ent_modes     = new HashMap<Mode, Long>();
         
         defaults();
         init();
+        setDefaultMode();
     }
     
     /**
@@ -116,5 +130,97 @@ abstract public class Entity
     {
         if (this == obj) { return true; }
         return false;
+    }
+
+    /**
+     * Sets the default mode on the entity. 
+     * Called by the entity on initialization, and by default does nothing.
+     * If you want an entity to have any behaviour, adding an initial mode here
+     * is the recommended way to do so.
+     * 
+     * <p>This is also called upon an entity on a map start (tick 0). If you wish
+     * to have state be persistent, save a boolean in your subclass and check
+     * that. Shit ain't hard, yo.</p>
+     * 
+     * @return nothing.
+     */
+    protected void setDefaultMode()
+    {
+        return;
+    }
+
+    /**
+     * Gets a copy of the modes in a Thinker.
+     * 
+     * @return guess.
+     */
+    public Map<Mode, Long> getModes()
+    {
+        return new HashMap<Mode, Long>(ent_modes);
+    }
+
+    /**
+     * Adds a mode to an entity. Use this to apply debuffs or whatnot to things.
+     * 
+     * @param m     the mode to add.
+     * @param tick  the tick the mode should next be called on. Should be relative,
+     *              not absolute.
+     * @return nothing.
+     */
+    public void updateMode(Mode m, Long delay)
+    {
+        ent_modes.put(m, delay);
+    }
+
+    /**
+     * Runs all thoughts scheduled to run in the next tickDelta ticks <i>once</i>.
+     * It's meant to be called with tickDelta being the exact amount of ticks needed
+     * to reach the next set of actions.
+     * 
+     * @param tickDelta the amount of ticks that have passed since the last think call.
+     * @param map       the map that is being thought on.
+     * 
+     * @return a map corresponding to the next set of actions to call. The Long value
+     *          in the map is an absolute tick value.
+     */
+    public Map<Mode, Long> think(Long tickDelta, GameMap map)
+    {
+        Map<Mode, Long> ret = new HashMap<>();
+        long mapTick = map.getTick();
+        long endTick = mapTick + tickDelta;
+        
+        tickDown(tickDelta);
+        
+        Set<Map.Entry<Mode, Long>> modes = ent_modes.entrySet();
+        
+        for (Map.Entry<Mode, Long> next: modes)
+        {
+            Mode mode     = next.getKey();
+            Long timeLeft = next.getValue();
+            
+            if (timeLeft > 0) { continue; }
+            
+            long runTick   = mapTick - timeLeft;
+            long nextTick  = runTick + mode.act(runTick, map);
+            long nextDelay = nextTick - endTick;
+            
+            updateMode(mode, nextDelay);
+            ret.put(mode, nextTick);
+        }
+        
+        return ret;
+    }
+
+    public void tickDown(Long tickDelta)
+    {
+        Set<Map.Entry<Mode, Long>> modes = ent_modes.entrySet();
+        for (Map.Entry<Mode, Long> next: modes)
+        {
+            Mode mode  = next.getKey();
+            Long delay = next.getValue();
+            
+            long t = delay - tickDelta;
+            updateMode(mode, t);
+        }
     }
 }

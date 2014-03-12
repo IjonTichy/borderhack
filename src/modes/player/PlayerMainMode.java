@@ -1,16 +1,21 @@
 package modes.player;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
+
 import org.jsfml.system.Vector2i;
 
 import controls.Control;
-import entities.thinkers.Thinker;
-import entities.thinkers.player.MovementControl;
+import entities.Entity;
+import entities.player.MovementControl;
 import map.GameMap;
 import modes.Mode;
 
 public class PlayerMainMode extends Mode
 {
-    public PlayerMainMode(Thinker e)
+    private Deque<MovementControl> pmm_movements;
+    
+    public PlayerMainMode(Entity e)
     {
         super(e);
     }
@@ -19,38 +24,40 @@ public class PlayerMainMode extends Mode
     public long defaultAction(Long tick, GameMap map)
     {
         // TODO Auto-generated method stub
+        long ticksSpent = 0;
+
+        ticksSpent += pollMovement();
+        ticksSpent += doMovement(tick, map);
         
-        if (m_controls.size() > 0)
-        {
-            System.out.println("\nGot controls:");
-            
-            for (Control c: m_controls)
-            {
-                System.out.println("* " + c);
-            }
-        }
-        
-        doMovement(tick, map);
-        
-        return 0;
+        return ticksSpent;
     }
     
-    private void doMovement(Long tick, GameMap map)
+    private long pollMovement()
     {
-        int xoff = 0;
-        int yoff = 0;
+        if (pmm_movements == null) { pmm_movements = new ArrayDeque<>(); }
         
         for (Control c: m_controls)
         {
             if (!(c instanceof MovementControl)) { continue; }
             
             MovementControl mc = (MovementControl)c;
-            MovementControl.Direction md = mc.mc_direction;
-            
-            xoff += md.x;
-            yoff += md.y;
+            pmm_movements.addLast(mc);
         }
         
-        if (xoff != 0 || yoff != 0) { map.move(m_controller, new Vector2i(xoff, yoff)); }
+        return 0;
+    }
+    
+    private long doMovement(Long tick, GameMap map)
+    {
+        MovementControl nextMovement = pmm_movements.pollFirst();
+        if (nextMovement == null) { return 0; }
+        
+        MovementControl.Direction nextDir = nextMovement.mc_direction;
+        
+        int xoff = nextDir.x;
+        int yoff = nextDir.y;
+        
+        int blocksMoved = map.move(m_controller, new Vector2i(xoff, yoff));
+        return blocksMoved;
     }
 }
