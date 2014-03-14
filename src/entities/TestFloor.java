@@ -11,8 +11,6 @@ public class TestFloor extends Entity
         ent_layer   = 10;
     }
     
-    public int getID() { return 1; }
-    
     protected void init()
     {
         return;

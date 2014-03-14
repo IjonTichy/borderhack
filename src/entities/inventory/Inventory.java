@@ -2,6 +2,8 @@ package entities.inventory;
 
 import java.util.List;
 
+import org.jsfml.graphics.Color;
+
 import entities.Entity;
 import modes.inventory.InvMode;
 
@@ -22,4 +24,7 @@ abstract public class Inventory extends Entity
     {
         return inv_currentstate;
     }
+    
+    abstract public String  getName();
+    abstract public Color   getDisplayColor();
 }

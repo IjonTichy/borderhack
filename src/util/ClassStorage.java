@@ -2,7 +2,9 @@ package util;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import entities.Entity;
 
@@ -13,8 +15,8 @@ import entities.Entity;
  */
 public class ClassStorage
 {
-    private static HashMap<Long, WeakReference<Entity>> entities_stored = new HashMap<Long, WeakReference<Entity>>();
-    private static HashMap<Integer, Class<? extends Entity>> entity_types = new HashMap<Integer, Class<? extends Entity>>();
+    private static HashMap<Long, WeakReference<Entity>> entities_stored = new HashMap<>();
+    private static Set<Class<? extends Entity>> entity_types            = new HashSet<>();
     
     // if you can make 9223372036854775808 entities in a reasonable amount of time,
     // get the hell out of my engine
@@ -88,15 +90,7 @@ public class ClassStorage
         }
         
         Class<? extends Entity> e_class = e.getClass();
-        int e_id = e.getID();
-        Class<? extends Entity> curType = entity_types.get(e_id);
-        
-        if (curType != null && curType != e_class)
-        {
-            throw new IDAlreadyUsedException();
-        }
-        
-        entity_types.put(e_id, e_class);
+        entity_types.add(e_class);
         
         return id;
     }

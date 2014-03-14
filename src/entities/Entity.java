@@ -1,5 +1,6 @@
 package entities;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +31,7 @@ abstract public class Entity
     protected float         ent_health;
 
     protected Map<Mode, Long> ent_modes;
-    protected List<Inventory> ent_inventory;
+    protected List<Inventory> ent_backpack;
     
     
     /**
@@ -40,17 +41,25 @@ abstract public class Entity
      */
     public Entity()
     {
-        ent_layer   = 0;
-        ent_size_x  = 1;
-        ent_size_y  = 1;
-        ent_size_z  = 1;
-        ent_health  = 1000;
-        ent_modes     = new HashMap<Mode, Long>();
+        ent_layer       = 0;
+        ent_size_x      = 1;
+        ent_size_y      = 1;
+        ent_size_z      = 1;
+        ent_health      = 1000;
+        ent_modes       = new HashMap<>();
+        ent_backpack    = new ArrayList<>();
         
         defaults();
         init();
         setDefaultMode();
     }
+
+    public boolean equals(Object obj)
+    {
+        if (this == obj) { return true; }
+        return false;
+    }
+    
     
     /**
      * Any sub-entity logic should go here. super.init() is not necessary here;
@@ -60,15 +69,6 @@ abstract public class Entity
      * @return      nothing.
      */
     abstract protected void init();
-    
-    /**
-     * Entity ID goes here.
-     * If this does not return a constant value, you have only yourself to blame
-     * when everything starts breaking horribly.
-     * 
-     * @return entity ID, as integer
-     */
-    abstract public int getID();
     
     /**
      * Default animation. If myAnim is not set upon calling render, the result of this is used.
@@ -117,20 +117,6 @@ abstract public class Entity
         AnimData animLayer = new AnimData(0, 0, ent_layer);
         return ent_anim.render(renderTick, animLayer, new Vector2i(Constants.TILE_WIDTH, Constants.TILE_HEIGHT));
     }
-    
-    public int hashCode()
-    {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + (int) (getID() ^ (getID() >>> 32));
-        return result;
-    }
-
-    public boolean equals(Object obj)
-    {
-        if (this == obj) { return true; }
-        return false;
-    }
 
     /**
      * Sets the default mode on the entity. 
@@ -175,7 +161,7 @@ abstract public class Entity
     /**
      * Runs all thoughts scheduled to run in the next tickDelta ticks <i>once</i>.
      * It's meant to be called with tickDelta being the exact amount of ticks needed
-     * to reach the next set of actions.
+     * to reach the next set of actions. Only the GameMap should call this.
      * 
      * @param tickDelta the amount of ticks that have passed since the last think call.
      * @param map       the map that is being thought on.
@@ -211,6 +197,12 @@ abstract public class Entity
         return ret;
     }
 
+    /**
+     * Only meant to be called by the GameMap. Ticks down every mode in the
+     * entity by tickDelta ticks.
+     * 
+     * @param tickDelta how many ticks to tick off
+     */
     public void tickDown(Long tickDelta)
     {
         Set<Map.Entry<Mode, Long>> modes = ent_modes.entrySet();
@@ -222,5 +214,42 @@ abstract public class Entity
             long t = delay - tickDelta;
             updateMode(mode, t);
         }
+    }
+    
+    /**
+     * Clears an entity's backpack.
+     * @return how many items WERE in the backpack.
+     */
+    public int clearBackpack()
+    {
+        int ret = ent_backpack.size();
+        ent_backpack.clear();
+        
+        return ret;
+    }
+    
+    /**
+     * Adds an inventory item to an entity's backpack. 
+     * @param inv the inventory item to add
+     * @return whether the inventory item is in the backpack.
+     */
+    public boolean addInventory(Inventory inv)
+    {
+        if (ent_backpack.contains(inv)) { return true; }
+        
+        ent_backpack.add(inv);
+        return true;
+    }
+    
+    /**
+     * Removes an inventory item from an entity's backpack.
+     * @param inv the inventory item to remove
+     * @return whether the inventory item WAS in the backpack.
+     */
+    public boolean removeInventory(Inventory inv)
+    {
+        boolean ret = ent_backpack.contains(inv);
+        ent_backpack.remove(inv);
+        return ret;
     }
 }

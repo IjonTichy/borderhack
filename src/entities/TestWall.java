@@ -16,7 +16,6 @@ public class TestWall extends Entity
         ent_layer = -10;
     }
     
-    public int getID() { return 2; }
     public Animation defaultAnimation() { return new WallAnim(); }
     
 }

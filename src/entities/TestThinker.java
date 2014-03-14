@@ -12,8 +12,6 @@ public class TestThinker extends Entity
 
     }
     
-    public int getID() { return 10; }
-
     @Override
     public void setDefaultMode()
     {
