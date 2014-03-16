@@ -8,6 +8,8 @@ import org.jsfml.system.Vector2i;
 import controls.Control;
 import entities.Entity;
 import entities.player.MovementControl;
+import entities.player.Player;
+import entities.player.Player.PControl;
 import map.GameMap;
 import modes.Mode;
 
@@ -24,15 +26,18 @@ public class PlayerMainMode extends Mode
     public long defaultAction(Long tick, GameMap map)
     {
         // TODO Auto-generated method stub
-        long ticksSpent = 0;
+        long i = 0;
 
-        ticksSpent += pollMovement();
-        ticksSpent += doMovement(tick, map);
+        pollMovement();
+        doInvCheck(tick, map);
         
-        return ticksSpent;
+        i = doMovement(tick, map); if (i > 0) { return i; }
+        i = doGrabbing(tick, map); if (i > 0) { return i; }
+        
+        return 0;
     }
     
-    private long pollMovement()
+    private void pollMovement()
     {
         if (pmm_movements == null) { pmm_movements = new ArrayDeque<>(); }
         
@@ -44,7 +49,7 @@ public class PlayerMainMode extends Mode
             pmm_movements.addLast(mc);
         }
         
-        return 0;
+        return;
     }
     
     private long doMovement(Long tick, GameMap map)
@@ -59,5 +64,22 @@ public class PlayerMainMode extends Mode
         
         int blocksMoved = map.move(m_controller, new Vector2i(xoff, yoff));
         return blocksMoved;
+    }
+    
+    private long doGrabbing(Long tick, GameMap map)
+    {
+        if (hasControl(PControl.PICKUP.control()))
+        {
+            System.out.println("That's cool I guess");
+        }
+        return 0;
+    }
+    
+    private void doInvCheck(Long tick, GameMap map)
+    {
+        if (hasControl(PControl.INVENTORY.control()))
+        {
+            System.out.println("what's an inventory");
+        }
     }
 }

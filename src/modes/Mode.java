@@ -120,9 +120,14 @@ abstract public class Mode
         m_controls.addAll(c);
     }
     
-    private void clearControls()
+    protected void clearControls()
     {
         m_controls.clear();
+    }
+    
+    protected boolean hasControl(Control c)
+    {
+        return m_controls.contains(c);
     }
     
     /**

@@ -252,4 +252,23 @@ abstract public class Entity
         ent_backpack.remove(inv);
         return ret;
     }
+    
+    /**
+     * You want to know what's in an entity's backpack? Here you go.
+     * @return A copy of the entity's backpack.
+     */
+    public List<Inventory> getBackpack()
+    {
+        return new ArrayList<Inventory>(ent_backpack);
+    }
+    
+    /**
+     * Check if a certain inventory item is in this entity's backpack.
+     * @param inv The inventory item to check.
+     * @return Whether said item is in this entity's backpack.
+     */
+    public boolean inBackpack(Inventory inv)
+    {
+        return ent_backpack.contains(inv);
+    }
 }

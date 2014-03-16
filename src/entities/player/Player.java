@@ -40,6 +40,10 @@ public class Player extends Entity
         
         WAIT(new MovementControl("Wait", MovementControl.Direction.NONE),
              new KeyMapping(Key.NUMPAD5, true)),
+             
+        PICKUP(new Control("Pick up item"), new KeyMapping(Key.G, true)),
+        
+        INVENTORY(new Control("Show inventory"), new KeyMapping(Key.I, true)),
         
         ;
         
