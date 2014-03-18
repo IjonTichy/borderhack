@@ -237,8 +237,13 @@ abstract public class Entity
     {
         if (ent_backpack.contains(inv)) { return true; }
         
-        ent_backpack.add(inv);
-        return true;
+        if (inv.grab(this))
+        {
+            ent_backpack.add(inv);
+            return true;
+        }
+        
+        return false;
     }
     
     /**
@@ -248,9 +253,16 @@ abstract public class Entity
      */
     public boolean removeInventory(Inventory inv)
     {
-        boolean ret = ent_backpack.contains(inv);
-        ent_backpack.remove(inv);
-        return ret;
+        if (inv.owner() != this) { return false; }
+        
+        if (inv.drop())
+        {
+            boolean inInv = ent_backpack.contains(inv);
+            if (inInv) ent_backpack.remove(inv);
+            return inInv;
+        }
+        
+        return false;
     }
     
     /**

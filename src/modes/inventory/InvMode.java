@@ -12,14 +12,13 @@ abstract public class InvMode extends Mode
     protected Inventory im_controller;
     protected Method    im_nextbackpackaction;
     protected Method    im_nextequipaction;
-    protected Method    im_nextaction;
     
     public InvMode(Inventory e) throws ActionUnavailableException
     {
         super(e);  // mostly unused
         
         im_controller           = e;
-        im_nextaction           = getAction("defaultAction");
+        m_nextaction            = getAction("defaultAction");
         im_nextbackpackaction   = getAction("defaultBackpackAction");
         im_nextequipaction      = getAction("defaultEquipAction");
     }
@@ -28,12 +27,17 @@ abstract public class InvMode extends Mode
     {
         switch (im_controller.getCurrentState())
         {
-            case EQUIPPED:   return im_nextequipaction;
-            case INBACKPACK: return im_nextbackpackaction;
-            case ONGROUND:   return im_nextaction;
+            case EQUIPPED:   return defaultAction(im_nextequipaction,    "defaultEquipAction");
+            case INBACKPACK: return defaultAction(im_nextbackpackaction, "defaultBackpackAction");
+            case ONGROUND:   return defaultAction(m_nextaction,          "defaultAction");
         }
         
         return null;
+    }
+    
+    public void handleStateSwitch(Inventory.IStates from, Inventory.IStates to)
+    {
+        
     }
     
     abstract public void mapToBackpack(long tick, GameMap map);

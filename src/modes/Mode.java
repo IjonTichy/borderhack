@@ -61,22 +61,28 @@ abstract public class Mode
     
     public Method getCurrentAction()
     {
-        if (m_nextaction == null)
+        return defaultAction(m_nextaction, "defaultAction");
+    }
+    
+    protected Method defaultAction(Method action, String defaultName)
+    {
+        if (action == null)
         {
             try
             {
-                return getAction("defaultAction");
+                return getAction(defaultName);
             }
             catch (ActionUnavailableException e)
             {
                 System.err.println("Oh jesus christ mode \"" + this.getClass().getSimpleName()
-                                    + "\" doesn't have a default action jesus christ this is bad");
+                                    + "\" doesn't have default action \"" + defaultName
+                                    + "\" jesus christ this is bad");
                 e.printStackTrace();
                 System.exit(1);
             }
         }
         
-        return m_nextaction;
+        return action;
     }
     
     public Long act(long tick, GameMap map)
