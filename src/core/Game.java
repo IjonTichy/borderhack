@@ -46,18 +46,18 @@ public class Game implements Runnable
                 MapData testMD  = new MapData(x, y);
                 Entity  testEnt = new TestWall();
                 
-                testmap.addToMap(testEnt, testMD);
+                testmap.add(testEnt, testMD);
                 
                 if (x == 0 || y == 0 || x == 15 || y == 15)
                 {
                     testEnt = new TestFloor();
-                    testmap.addToMap(testEnt, new MapData(x, y, 1));
+                    testmap.add(testEnt, new MapData(x, y, 1));
                 }
             }
         }
         
-        testmap.addToMap(new TestThinker(), new MapData(1, 1));
-        testmap.addToMap(testply, new MapData(2, 2, 1));
+        testmap.add(new TestThinker(), new MapData(1, 1));
+        testmap.add(testply, new MapData(2, 2, 1));
         
         I_Instance gameInstance = new MapInstance(gameWindow, events, testmap);
         

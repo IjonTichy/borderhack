@@ -69,6 +69,16 @@ public class GameMap
     }
     
     /**
+     * Tells you if the given entity is actually in the map.
+     * @param ent   The entity in question.
+     * @return YEAH I REALLY WONDER.
+     */
+    public boolean hasEntity(Entity ent)
+    {
+        return map_entities.containsKey(ent);
+    }
+    
+    /**
      * Gets the position of the entity.
      * @param ent   The entity to get the position of.
      * @return Its position WOAH.
@@ -119,7 +129,7 @@ public class GameMap
     public boolean addToMap(Entity ent)
     {
         MapData pos = new MapData(0, 0, 0);
-        return addToMap(ent, pos);
+        return add(ent, pos);
     }
 
     /**
@@ -128,7 +138,7 @@ public class GameMap
      * @param pos   The position of the entity.
      * @return  Whether the entity was added to the map.
      */
-    public boolean addToMap(Entity ent, MapData pos)
+    public boolean add(Entity ent, MapData pos)
     {
         if (map_entities.containsKey(ent))
         {
@@ -148,7 +158,7 @@ public class GameMap
      * @param ent   The entity to remove.
      * @return  Whether the entity was removed from the map.
      */
-    public boolean removeFromMap(Entity ent)
+    public boolean remove(Entity ent)
     {
         if (map_entities.containsKey(ent))
         {

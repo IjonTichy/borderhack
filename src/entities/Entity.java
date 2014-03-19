@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import map.GameMap;
+import map.MapData;
 import modes.Mode;
 
 import org.jsfml.system.Vector2i;
@@ -27,6 +28,7 @@ abstract public class Entity
     protected int           ent_size_y;
     protected int           ent_size_z;
     protected Animation     ent_anim;
+    protected GameMap       ent_map;
 
     protected float         ent_health;
 
@@ -90,6 +92,43 @@ abstract public class Entity
      */
     protected void defaults()
     {
+    }
+    
+    /**
+     * Associates this entity with a GameMap. If it isn't in the map, add itself
+     * to the map at coordinates (0, 0, 0). If it is currently in a map, either
+     * switch to that map or do nothing, depending on what force is set to.
+     * 
+     * @param map   The map to associate with.
+     * @param force Force this entity to switch to that map?
+     * @return Whether this entity is now on the map given.
+     */
+    public boolean associateWithMap(GameMap map, boolean force)
+    {
+        if (ent_map != null && ent_map != map)
+        {
+            if (force) { ent_map.remove(this); }
+            else { return false; }
+        }
+        
+        if (!map.hasEntity(this))
+        {
+            map.add(this, new MapData(0, 0, 0));
+        }
+        
+        ent_map = map;
+        return true;
+    }
+    
+    /**
+     * Disassociates this entity with the map it's currently associated with, and
+     * removes it from said map.
+     */
+    public void disassociateFromMap()
+    {
+        if (ent_map == null) { return; }
+        ent_map.remove(this);
+        ent_map = null;
     }
     
     /**
