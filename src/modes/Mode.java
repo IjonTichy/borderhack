@@ -6,13 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import util.ActionUnavailableException;
-import map.GameMap;
 import entities.Entity;
 import controls.Control;
 
 abstract public class Mode
 {
-    protected Entity       m_controller;
+    protected Entity        m_controller;
     protected Method        m_nextaction;
     protected List<Control> m_controls;
     
@@ -31,7 +30,7 @@ abstract public class Mode
     protected Method getAction(String actionName) throws ActionUnavailableException
     {
         @SuppressWarnings("rawtypes")
-        Class[] args = {Long.class, GameMap.class};
+        Class[] args = {};
         Method ret;
         
         try
@@ -61,10 +60,10 @@ abstract public class Mode
     
     public Method getCurrentAction()
     {
-        return defaultAction(m_nextaction, "defaultAction");
+        return getActionDefault(m_nextaction, "defaultAction");
     }
     
-    protected Method defaultAction(Method action, String defaultName)
+    protected Method getActionDefault(Method action, String defaultName)
     {
         if (action == null)
         {
@@ -85,18 +84,19 @@ abstract public class Mode
         return action;
     }
     
-    public Long act(long tick, GameMap map)
+    public Long act()
     {
-        return doaction(getCurrentAction(), tick, map);
+        return doaction(getCurrentAction());
     }
     
-    protected Long doaction(Method action, long tick, GameMap map)
+    protected Long doaction(Method action)
     {
         Long result = null;
+        if (m_controller == null) { return null; } // can't do something to nothing
         
         try
         {
-            result = (Long)action.invoke(this, tick, map);
+            result = (Long)action.invoke(this);
             clearControls();
         }
         catch (IllegalArgumentException e)
@@ -107,7 +107,12 @@ abstract public class Mode
             System.err.println("Stack trace:");
             e.printStackTrace();
         }
-        catch (IllegalAccessException | InvocationTargetException e)
+        catch (IllegalAccessException e)
+        {
+            System.err.println("Mode " + getClass().getSimpleName() + ", action " + action.getName() + " tried to get to something it shouldn't.");
+            e.printStackTrace();
+        }
+        catch (InvocationTargetException e)
         {
             System.err.println("Mode " + getClass().getSimpleName() + ", action " + action.getName() + " fucked up:");
             e.printStackTrace();
@@ -142,5 +147,5 @@ abstract public class Mode
      * @param map   the map itself
      * @return the amount of ticks until the map should call this mode again
      */
-    abstract public long defaultAction(Long tick, GameMap map);
+    abstract public long defaultAction();
 }

@@ -50,6 +50,7 @@ abstract public class Entity
         ent_health      = 1000;
         ent_modes       = new HashMap<>();
         ent_backpack    = new ArrayList<>();
+        ent_map         = null;
         
         defaults();
         init();
@@ -61,6 +62,8 @@ abstract public class Entity
         if (this == obj) { return true; }
         return false;
     }
+    
+    public GameMap getMap() { return ent_map; }
     
     
     /**
@@ -226,7 +229,7 @@ abstract public class Entity
             if (timeLeft > 0) { continue; }
             
             long runTick   = mapTick - timeLeft;
-            long nextTick  = runTick + mode.act(runTick, map);
+            long nextTick  = runTick + mode.act();
             long nextDelay = nextTick - endTick;
             
             updateMode(mode, nextDelay);

@@ -8,7 +8,6 @@ import org.jsfml.system.Vector2i;
 import controls.Control;
 import entities.Entity;
 import entities.player.MovementControl;
-import entities.player.Player;
 import entities.player.Player.PControl;
 import map.GameMap;
 import modes.Mode;
@@ -23,10 +22,15 @@ public class PlayerMainMode extends Mode
     }
     
     @Override
-    public long defaultAction(Long tick, GameMap map)
+    public long defaultAction()
     {
-        // TODO Auto-generated method stub
         long i = 0;
+        
+        GameMap map = m_controller.getMap();
+        long tick;
+        
+        if (map == null) { tick = 0; }
+        else { tick = map.getTick(); }
 
         pollMovement();
         doInvCheck(tick, map);

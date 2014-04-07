@@ -126,9 +126,10 @@ public class GameMap
      * @param ent   The entity to add.
      * @return  Whether the entity was added to the map.
      */
-    public boolean addToMap(Entity ent)
+    public boolean add(Entity ent)
     {
         MapData pos = new MapData(0, 0, 0);
+        
         return add(ent, pos);
     }
 
@@ -140,13 +141,19 @@ public class GameMap
      */
     public boolean add(Entity ent, MapData pos)
     {
-        if (map_entities.containsKey(ent))
+        if (map_entities.containsKey(ent)) // already in the map?
         {
             if (map_entities.get(ent) == null) { map_entities.remove(ent); }
             else { return false; }
         }
-        
+
         map_entities.put(ent, new MapData(pos));
+        if (!ent.associateWithMap(this, false))
+        {
+            map_entities.remove(ent);
+            return false;
+        }
+        
         registerModes(ent);
         addToBlockmap(ent);
         

@@ -27,9 +27,9 @@ abstract public class InvMode extends Mode
     {
         switch (im_controller.getCurrentState())
         {
-            case EQUIPPED:   return defaultAction(im_nextequipaction,    "defaultEquipAction");
-            case INBACKPACK: return defaultAction(im_nextbackpackaction, "defaultBackpackAction");
-            case ONGROUND:   return defaultAction(m_nextaction,          "defaultAction");
+            case EQUIPPED:   return getActionDefault(im_nextequipaction,    "defaultEquipAction");
+            case INBACKPACK: return getActionDefault(im_nextbackpackaction, "defaultBackpackAction");
+            case ONGROUND:   return getActionDefault(m_nextaction,          "defaultAction");
         }
         
         return null;

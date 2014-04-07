@@ -1,7 +1,6 @@
 package modes;
 
 import entities.Entity;
-import map.GameMap;
 
 public class TestMode extends Mode
 {
@@ -11,8 +10,10 @@ public class TestMode extends Mode
     }
     
     @Override
-    public long defaultAction(Long tick, GameMap map)
+    public long defaultAction()
     {
+        long tick = m_controller.getMap().getTick();
+        
         System.out.println("Tick " + tick + " is dumb");
         return 100;
     }
