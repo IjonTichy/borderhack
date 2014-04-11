@@ -325,4 +325,10 @@ abstract public class Entity
     {
         return ent_backpack.contains(inv);
     }
+
+    public Vector3i getPosition()
+    {
+        if (ent_map == null) { return null; }
+        return ent_map.getPosition(this);
+    }
 }
