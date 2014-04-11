@@ -96,9 +96,9 @@ public class RenderMap extends I_Renderer
     // == RENDERING
     // ====
     
-    private Map<Integer, Map<Texture, VertexArray>> buildVertTree(GameMap map)
+    private Map<Integer, Map<Texture, VertexArray>> buildVertTree(GameMap map, List<Entity> ents)
     {
-        Map<Integer, Map<Texture, VertexArray>> ret = new TreeMap<Integer, Map<Texture, VertexArray>>();
+        Map<Integer, Map<Texture, VertexArray>> ret = new TreeMap<>();
         
         render_xsize  = 0;
         render_ysize  = 0;
@@ -107,14 +107,14 @@ public class RenderMap extends I_Renderer
 
         long rtick = r_thread == null ? 0 : r_thread.getTick();
         
-        for (Entity ent: map.getAllEntities())
+        for (Entity ent: ents)
         {   
             if (ent == null) { continue; }  // dunno how that happened but okay
             
             Vector3i position = map.getPosition(ent);
             int x = position.x * Constants.TILE_WIDTH;
             int y = position.y * Constants.TILE_HEIGHT;
-                
+               
             RenderQuad toRender = ent.render(rtick);
             VertexArray newPoints = new VertexArray();
             
@@ -272,21 +272,8 @@ public class RenderMap extends I_Renderer
         render_center = new Vector2f(rx, ry);
     }
     
-    
-    public void render(RenderWindow rWindow, List<Event> newEvents)
+    public void renderVertTree(Map<Integer, Map<Texture, VertexArray>> renderMap, RenderWindow rWindow)
     {
-        try { rWindow.setActive(true); }
-        catch (ContextActivationException e) { return; } // window closed
-        
-        View rView = mapView(rWindow);
-        handlePosition(rWindow, newEvents);
-        
-        ConstView oldView = rWindow.getView();
-        Map<Integer, Map<Texture, VertexArray>> renderMap = buildVertTree(render_map);
-        
-        rWindow.setView(rView);
-        rWindow.clear(Color.BLUE);
-        
         boolean doSmooth = render_zoom % 1.0 != 0;
         
         for (Map.Entry<Integer, Map<Texture, VertexArray>> layerEntry: renderMap.entrySet())
@@ -308,7 +295,23 @@ public class RenderMap extends I_Renderer
                 if (smooth != doSmooth) { vertTex.setSmooth(smooth); }
             }
         }
+    }
+    
+    
+    public void render(RenderWindow rWindow, List<Event> newEvents)
+    {
+        try { rWindow.setActive(true); }
+        catch (ContextActivationException e) { return; } // window closed
         
+        View rView = mapView(rWindow);
+        handlePosition(rWindow, newEvents);
+        
+        ConstView oldView = rWindow.getView();
+        Map<Integer, Map<Texture, VertexArray>> renderMap = buildVertTree(render_map, render_map.getAllEntities());
+        
+        rWindow.setView(rView);
+        rWindow.clear(Color.BLUE);
+        renderVertTree(renderMap, rWindow);
         rWindow.setView(oldView); // avoid side effects if possible
         
         try { rWindow.setActive(false); }
