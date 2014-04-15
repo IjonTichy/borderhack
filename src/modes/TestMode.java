@@ -10,9 +10,9 @@ public class TestMode extends Mode
     }
     
     @Override
-    public long defaultAction()
+    public double defaultAction()
     {
-        long tick = m_controller.getMap().getTick();
+        double tick = m_controller.getMap().getTick();
         
         System.out.println("Tick " + tick + " is dumb");
         return 100;

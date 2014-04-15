@@ -9,6 +9,7 @@ import java.util.Set;
 import map.GameMap;
 import map.MapData;
 import modes.Mode;
+import modes.MovementMode;
 
 import org.jsfml.system.Vector2i;
 import org.jsfml.system.Vector3i;
@@ -32,7 +33,7 @@ abstract public class Entity
 
     protected float         ent_health;
 
-    protected Map<Mode, Long> ent_modes;
+    protected Map<Mode, Double> ent_modes;
     protected List<Inventory> ent_backpack;
     
     
@@ -182,9 +183,9 @@ abstract public class Entity
      * 
      * @return guess.
      */
-    public Map<Mode, Long> getModes()
+    public Map<Mode, Double> getModes()
     {
-        return new HashMap<Mode, Long>(ent_modes);
+        return new HashMap<Mode, Double>(ent_modes);
     }
 
     /**
@@ -195,9 +196,9 @@ abstract public class Entity
      *              not absolute.
      * @return nothing.
      */
-    public void updateMode(Mode m, Long delay)
+    public void updateMode(Mode m, double t)
     {
-        ent_modes.put(m, delay);
+        ent_modes.put(m, t);
     }
 
     /**
@@ -211,26 +212,26 @@ abstract public class Entity
      * @return a map corresponding to the next set of actions to call. The Long value
      *          in the map is an absolute tick value.
      */
-    public Map<Mode, Long> think(Long tickDelta, GameMap map)
+    public Map<Mode, Double> think(double tickDelta, GameMap map)
     {
-        Map<Mode, Long> ret = new HashMap<>();
-        long mapTick = map.getTick();
-        long endTick = mapTick + tickDelta;
+        Map<Mode, Double> ret = new HashMap<>();
+        double mapTick = map.getTick();
+        double endTick = mapTick + tickDelta;
         
         tickDown(tickDelta);
         
-        Set<Map.Entry<Mode, Long>> modes = ent_modes.entrySet();
+        Set<Map.Entry<Mode, Double>> modes = ent_modes.entrySet();
         
-        for (Map.Entry<Mode, Long> next: modes)
+        for (Map.Entry<Mode, Double> next: modes)
         {
-            Mode mode     = next.getKey();
-            Long timeLeft = next.getValue();
+            Mode   mode     = next.getKey();
+            Double timeLeft = next.getValue();
             
-            if (timeLeft > 0) { continue; }
+            if (timeLeft == null || timeLeft > 0) { continue; }
             
-            long runTick   = mapTick - timeLeft;
-            long nextTick  = runTick + mode.act();
-            long nextDelay = nextTick - endTick;
+            double runTick   = mapTick - timeLeft;
+            double nextTick  = runTick + mode.act();
+            double nextDelay = nextTick - endTick;
             
             updateMode(mode, nextDelay);
             ret.put(mode, nextTick);
@@ -243,17 +244,17 @@ abstract public class Entity
      * Only meant to be called by the GameMap. Ticks down every mode in the
      * entity by tickDelta ticks.
      * 
-     * @param tickDelta how many ticks to tick off
+     * @param d how many ticks to tick off
      */
-    public void tickDown(Long tickDelta)
+    public void tickDown(double d)
     {
-        Set<Map.Entry<Mode, Long>> modes = ent_modes.entrySet();
-        for (Map.Entry<Mode, Long> next: modes)
+        Set<Map.Entry<Mode, Double>> modes = ent_modes.entrySet();
+        for (Map.Entry<Mode, Double> next: modes)
         {
-            Mode mode  = next.getKey();
-            Long delay = next.getValue();
+            Mode   mode  = next.getKey();
+            Double delay = next.getValue();
             
-            long t = delay - tickDelta;
+            double t = delay - d;
             updateMode(mode, t);
         }
     }
@@ -330,5 +331,16 @@ abstract public class Entity
     {
         if (ent_map == null) { return null; }
         return ent_map.getPosition(this);
+    }
+    
+    /**
+     * Do a movement.
+     * @param delta     How far to move.
+     * @param time      How long the movement should take.
+     * @return The MovementMode created from this.
+     */
+    public MovementMode doMovement(Vector3i delta, double time)
+    {
+        return null;
     }
 }

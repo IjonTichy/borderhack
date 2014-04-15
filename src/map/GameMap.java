@@ -37,8 +37,8 @@ public class GameMap
     private Map<Vector2i, MapBlock> map_blocks;
     private String map_name;
     
-    private long map_tick;
-    private HashMap<Mode, Long>     map_modeTicks;
+    private double map_tick;
+    private HashMap<Mode, Double>     map_modeTicks;
 
     public GameMap(String name)
     {
@@ -101,7 +101,7 @@ public class GameMap
      * Gets the tick of the map.
      * @return GUESS.
      */
-    public long getTick() { return map_tick; }
+    public double getTick() { return map_tick; }
     
 
     /**
@@ -109,7 +109,7 @@ public class GameMap
      * @param tickCount     How many ticks to run. If 0, runs to the next action.
      * @return  The tick the map ends on.
      */
-    public long doTicks(long tickCount)
+    public double doTicks(long tickCount)
     {
         if (tickCount == 0) { thinkNext(); }
         else { thinkTicks(tickCount); }
@@ -189,7 +189,7 @@ public class GameMap
     
     private void registerModes(Entity t)
     {
-        for (Map.Entry<Mode, Long> e: t.getModes().entrySet())
+        for (Map.Entry<Mode, Double> e: t.getModes().entrySet())
         {
             schedule(e.getKey(), e.getValue() + map_tick);
         }
@@ -203,10 +203,10 @@ public class GameMap
         }
     }
     
-    private void schedule(Mode m, long tick)
+    private void schedule(Mode m, double tick)
     {
-        Long curTime  = map_modeTicks.get(m);
-        long nextTime;
+        Double curTime  = map_modeTicks.get(m);
+        double nextTime;
         
         if (curTime == null || curTime <= map_tick) { nextTime = tick; }
         else { nextTime = Math.min(tick, curTime); }
@@ -219,9 +219,9 @@ public class GameMap
         map_modeTicks.remove(m);
     }
     
-    private void thinkTicks(long ticks)
+    private void thinkTicks(double ticks)
     {
-        long endTick = ticks + map_tick;
+        double endTick = ticks + map_tick;
         
         while (map_tick < endTick)
         {
@@ -229,32 +229,34 @@ public class GameMap
         }
     }
     
-    private long getNextThoughtTick()
+    private double getNextThoughtTick()
     {
         if (map_modeTicks.size() == 0) { return 0; }
         
-        long ret = Long.MAX_VALUE;
-        for (long t: map_modeTicks.values()) { ret = Math.min(t, ret); }
+        double ret = Double.MAX_VALUE;
+        for (double t: map_modeTicks.values()) { ret = Math.min(t, ret); }
         return ret;
     }
     
-    private long thinkNext()
+    private double thinkNext()
     {
         if (map_modeTicks.size() == 0) { return map_tick; }
         
-        Map<Mode, Long> newModes = new HashMap<>();
-        long next = getNextThoughtTick();
-        long shortest = Long.MAX_VALUE;
+        Map<Mode, Double> newModes = new HashMap<>();
+        double next = getNextThoughtTick();
+        Double shortest = Double.MAX_VALUE;
         
         for (Entity e: map_entities.keySet())
         {
             newModes.putAll(e.think(next - map_tick, this));
         }
         
-        for (Map.Entry<Mode, Long> e: newModes.entrySet())
+        for (Map.Entry<Mode, Double> e: newModes.entrySet())
         {
-            Mode m = e.getKey();
-            Long l = e.getValue();
+            Mode   m = e.getKey();
+            Double l = e.getValue();
+            if (m == null || l == null) { continue; }
+            
             schedule(m, l);
             shortest = Math.min(l, shortest);
         }

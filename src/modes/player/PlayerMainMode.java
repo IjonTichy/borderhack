@@ -22,12 +22,12 @@ public class PlayerMainMode extends Mode
     }
     
     @Override
-    public long defaultAction()
+    public double defaultAction()
     {
-        long i = 0;
+        double i = 0;
         
         GameMap map = m_controller.getMap();
-        long tick;
+        double tick;
         
         if (map == null) { tick = 0; }
         else { tick = map.getTick(); }
@@ -56,7 +56,7 @@ public class PlayerMainMode extends Mode
         return;
     }
     
-    private long doMovement(Long tick, GameMap map)
+    private double doMovement(Double tick, GameMap map)
     {
         MovementControl nextMovement = pmm_movements.pollFirst();
         if (nextMovement == null) { return 0; }
@@ -70,7 +70,7 @@ public class PlayerMainMode extends Mode
         return blocksMoved;
     }
     
-    private long doGrabbing(Long tick, GameMap map)
+    private double doGrabbing(Double tick, GameMap map)
     {
         if (hasControl(PControl.PICKUP.control()))
         {
@@ -79,7 +79,7 @@ public class PlayerMainMode extends Mode
         return 0;
     }
     
-    private void doInvCheck(Long tick, GameMap map)
+    private void doInvCheck(Double tick, GameMap map)
     {
         if (hasControl(PControl.INVENTORY.control()))
         {

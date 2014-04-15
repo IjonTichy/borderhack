@@ -84,19 +84,19 @@ abstract public class Mode
         return action;
     }
     
-    public Long act()
+    public Double act()
     {
         return doaction(getCurrentAction());
     }
     
-    protected Long doaction(Method action)
+    protected Double doaction(Method action)
     {
-        Long result = null;
+        Double result = null;
         if (m_controller == null) { return null; } // can't do something to nothing
         
         try
         {
-            result = (Long)action.invoke(this);
+            result = (Double)action.invoke(this);
             clearControls();
         }
         catch (IllegalArgumentException e)
@@ -147,5 +147,5 @@ abstract public class Mode
      * @param map   the map itself
      * @return the amount of ticks until the map should call this mode again
      */
-    abstract public long defaultAction();
+    abstract public double defaultAction();
 }
