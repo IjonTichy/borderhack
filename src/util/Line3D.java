@@ -40,6 +40,17 @@ public class Line3D
                          new Vector3i(Math.round(end.x),   Math.round(end.y),   Math.round(end.z)));
     }
     
+    public static List<Vector3i> bresenham(Vector3f end)
+    {
+        return bresenham(new Vector3i(0, 0, 0),
+                         new Vector3i(Math.round(end.x),   Math.round(end.y),   Math.round(end.z)));
+    }
+    
+    public static List<Vector3i> bresenham(Vector3i end)
+    {
+        return bresenham(new Vector3i(0, 0, 0), end);
+    }
+    
     public static List<Vector3i> bresenham(Vector3i start, Vector3i end)
     {
         List<Vector3i> ret = new ArrayList<>();

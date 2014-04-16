@@ -244,11 +244,15 @@ public class GameMap
         
         Map<Mode, Double> newModes = new HashMap<>();
         double next = getNextThoughtTick();
-        Double shortest = Double.MAX_VALUE;
+        double shortest;
+        
+        if (map_modeTicks.size() == 0) { shortest = Double.MAX_VALUE; }
+        else { shortest = next; }
         
         for (Entity e: map_entities.keySet())
         {
-            newModes.putAll(e.think(next - map_tick, this));
+            Map<Mode, Double> responseModes = e.think(next - map_tick, this);
+            newModes.putAll(responseModes);
         }
         
         for (Map.Entry<Mode, Double> e: newModes.entrySet())
@@ -261,7 +265,7 @@ public class GameMap
             shortest = Math.min(l, shortest);
         }
         
-        if (shortest == Long.MAX_VALUE) { shortest = next; }
+        if (shortest == Double.MAX_VALUE) { shortest = next; }
 
         for (Entity e: map_entities.keySet())
         {
@@ -282,11 +286,14 @@ public class GameMap
      */
     public void sendControls(List<Control> controls)
     {
+        if (controls.size() == 0) { return; } 
+        
         for (Entity e: map_entities.keySet())
         {
             for (Mode m: e.getModes().keySet())
             {
                 m.giveControls(controls);
+                System.out.println(controls);
             }
         }
     }

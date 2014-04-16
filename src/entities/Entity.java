@@ -332,6 +332,37 @@ abstract public class Entity
         if (ent_map == null) { return null; }
         return ent_map.getPosition(this);
     }
+
+    /**
+     * Do a 2D movement with a duration of 0 ticks.
+     * @param delta     How far to move.
+     * @return The MovementMode created from this.
+     */
+    public MovementMode move(Vector2i delta)
+    {
+        return move(new Vector3i(delta.x, delta.y, 0), 0);
+    }
+
+    /**
+     * Do a 2D movement.
+     * @param delta     How far to move.
+     * @param time      How long the movement should take.
+     * @return The MovementMode created from this.
+     */
+    public MovementMode move(Vector2i delta, double time)
+    {
+        return move(new Vector3i(delta.x, delta.y, 0), time);
+    }
+
+    /**
+     * Do a movement with a duration of 0 ticks.
+     * @param delta     How far to move.
+     * @return The MovementMode created from this.
+     */
+    public MovementMode move(Vector3i delta)
+    {
+        return move(delta, 0);
+    }
     
     /**
      * Do a movement.
@@ -339,8 +370,8 @@ abstract public class Entity
      * @param time      How long the movement should take.
      * @return The MovementMode created from this.
      */
-    public MovementMode doMovement(Vector3i delta, double time)
+    public MovementMode move(Vector3i delta, double time)
     {
-        return null;
+        return new MovementMode(delta, time);
     }
 }

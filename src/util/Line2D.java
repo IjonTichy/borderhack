@@ -38,6 +38,12 @@ public class Line2D
                          new Vector2i(Math.round(end.x),   Math.round(end.y)  ));
     }
     
+    public static List<Vector2i> bresenham(Vector2f end)
+    {
+        return bresenham(new Vector2i(0, 0),
+                         new Vector2i(Math.round(end.x),   Math.round(end.y)  ));
+    }
+    
     public static List<Vector2i> bresenham(Vector2i start, Vector2i end)
     {
         List<Vector2i> ret = new ArrayList<>();

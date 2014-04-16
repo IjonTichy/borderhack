@@ -89,6 +89,6 @@ public class Player extends Entity
     @Override
     protected void setDefaultMode()
     {
-        updateMode(new PlayerMainMode(this), 0l);
+        updateMode(new PlayerMainMode(this), 0);
     }
 }

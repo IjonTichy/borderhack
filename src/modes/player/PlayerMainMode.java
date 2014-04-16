@@ -11,6 +11,7 @@ import entities.player.MovementControl;
 import entities.player.Player.PControl;
 import map.GameMap;
 import modes.Mode;
+import modes.MovementMode;
 
 public class PlayerMainMode extends Mode
 {
@@ -66,8 +67,9 @@ public class PlayerMainMode extends Mode
         int xoff = nextDir.x;
         int yoff = nextDir.y;
         
-        int blocksMoved = map.move(m_controller, new Vector2i(xoff, yoff));
-        return blocksMoved;
+        MovementMode blocksMoved = m_controller.move(new Vector2i(xoff, yoff));
+        if (blocksMoved == null) { return 0; }
+        return blocksMoved.positions().size() - 1;
     }
     
     private double doGrabbing(Double tick, GameMap map)

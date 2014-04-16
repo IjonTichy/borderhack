@@ -15,6 +15,6 @@ public class TestMode extends Mode
         double tick = m_controller.getMap().getTick();
         
         System.out.println("Tick " + tick + " is dumb");
-        return 100;
+        return 0.5;
     }
 }
