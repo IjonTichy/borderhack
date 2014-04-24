@@ -27,6 +27,11 @@ abstract public class Mode
         m_controls   = new ArrayList<>();
     }
     
+    public String toString()
+    {
+        return "<" + this.getClass().getSimpleName() + ">";
+    }
+    
     protected Method getAction(String actionName) throws ActionUnavailableException
     {
         @SuppressWarnings("rawtypes")

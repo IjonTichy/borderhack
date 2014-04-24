@@ -192,8 +192,7 @@ abstract public class Entity
      * Adds a mode to an entity. Use this to apply debuffs or whatnot to things.
      * 
      * @param m     the mode to add.
-     * @param tick  the tick the mode should next be called on. Should be relative,
-     *              not absolute.
+     * @param tick  the tick the mode should next be called on. Should be absolute.
      * @return nothing.
      */
     public void updateMode(Mode m, double t)
@@ -227,13 +226,10 @@ abstract public class Entity
             Mode   mode     = next.getKey();
             Double timeLeft = next.getValue();
             
-            if (timeLeft == null || timeLeft > 0) { continue; }
+            if (timeLeft == null || timeLeft > endTick) { continue; }
+            double nextTick = mapTick + mode.act();
             
-            double runTick   = mapTick - timeLeft;
-            double nextTick  = runTick + mode.act();
-            double nextDelay = nextTick - endTick;
-            
-            updateMode(mode, nextDelay);
+            updateMode(mode, nextTick);
             ret.put(mode, nextTick);
         }
         

@@ -255,6 +255,31 @@ public class GameMap
             newModes.putAll(responseModes);
         }
         
+        if (true) // contain all debug shit
+        {
+            Map<Mode, Double> printModes = new HashMap<>();
+            boolean showModes = false;
+            
+            for (Map.Entry<Mode, Double> k: newModes.entrySet())
+            {
+                if (k.getValue() - map_tick <= 0) { continue; }
+                showModes = true;
+            }
+            
+            if (showModes)
+            {
+                System.err.println("\nState of map_modeTicks on tick " + map_tick + " (next is " + next + "):");
+                
+                for (Map.Entry<Mode, Double> k: map_modeTicks.entrySet())
+                {
+                    System.err.println("  " + k.getKey() + " -> " + k.getValue()
+                                    + " (going to " + newModes.get(k.getKey()) + ")");
+                }
+                
+                System.err.println();
+            }
+        }
+        
         for (Map.Entry<Mode, Double> e: newModes.entrySet())
         {
             Mode   m = e.getKey();
@@ -270,6 +295,11 @@ public class GameMap
         for (Entity e: map_entities.keySet())
         {
             e.tickDown(shortest - map_tick);
+        }
+        
+        if (map_tick != shortest)
+        {
+            System.out.println(map_tick + " -> " + shortest);
         }
 
         map_tick = shortest;
@@ -293,7 +323,6 @@ public class GameMap
             for (Mode m: e.getModes().keySet())
             {
                 m.giveControls(controls);
-                System.out.println(controls);
             }
         }
     }
