@@ -267,15 +267,15 @@ public class GameMap
             
             if (showModes)
             {
-                System.err.println("\nState of map_modeTicks on tick " + map_tick + " (next is " + next + "):");
+                System.out.println("State of map_modeTicks on tick " + map_tick + " (next is " + next + "):");
                 
                 for (Map.Entry<Mode, Double> k: map_modeTicks.entrySet())
                 {
-                    System.err.println("  " + k.getKey() + " -> " + k.getValue()
+                    System.out.println("  " + k.getKey() + " -> " + k.getValue()
                                     + " (going to " + newModes.get(k.getKey()) + ")");
                 }
                 
-                System.err.println();
+                System.out.println();
             }
         }
         
