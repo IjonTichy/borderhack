@@ -69,7 +69,7 @@ public class PlayerMainMode extends Mode
         
         MovementMode blocksMoved = m_controller.move(new Vector2i(xoff, yoff));
         if (blocksMoved == null) { return 0; }
-        return blocksMoved.positions().size() - 1;
+        return Math.max(0, blocksMoved.positions().size() - 1);
     }
     
     private double doGrabbing(Double tick, GameMap map)

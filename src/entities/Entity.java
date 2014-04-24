@@ -217,16 +217,14 @@ abstract public class Entity
         double mapTick = map.getTick();
         double endTick = mapTick + tickDelta;
         
-        tickDown(tickDelta);
-        
         Set<Map.Entry<Mode, Double>> modes = ent_modes.entrySet();
         
         for (Map.Entry<Mode, Double> next: modes)
         {
-            Mode   mode     = next.getKey();
-            Double timeLeft = next.getValue();
+            Mode   mode = next.getKey();
+            Double time = next.getValue();
             
-            if (timeLeft == null || timeLeft > endTick) { continue; }
+            if (time == null || time > endTick) { continue; }
             double nextTick = mapTick + mode.act();
             
             updateMode(mode, nextTick);
@@ -234,25 +232,6 @@ abstract public class Entity
         }
         
         return ret;
-    }
-
-    /**
-     * Only meant to be called by the GameMap. Ticks down every mode in the
-     * entity by tickDelta ticks.
-     * 
-     * @param d how many ticks to tick off
-     */
-    public void tickDown(double d)
-    {
-        Set<Map.Entry<Mode, Double>> modes = ent_modes.entrySet();
-        for (Map.Entry<Mode, Double> next: modes)
-        {
-            Mode   mode  = next.getKey();
-            Double delay = next.getValue();
-            
-            double t = delay - d;
-            updateMode(mode, t);
-        }
     }
     
     /**

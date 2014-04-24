@@ -244,9 +244,9 @@ public class GameMap
         
         Map<Mode, Double> newModes = new HashMap<>();
         double next = getNextThoughtTick();
-        double shortest;
+        double shortest = map_tick;
         
-        if (map_modeTicks.size() == 0) { shortest = Double.MAX_VALUE; }
+        if (map_modeTicks.size() == 0) { return map_tick; }
         else { shortest = next; }
         
         for (Entity e: map_entities.keySet())
@@ -257,7 +257,6 @@ public class GameMap
         
         if (true) // contain all debug shit
         {
-            Map<Mode, Double> printModes = new HashMap<>();
             boolean showModes = false;
             
             for (Map.Entry<Mode, Double> k: newModes.entrySet())
@@ -288,18 +287,6 @@ public class GameMap
             
             schedule(m, l);
             shortest = Math.min(l, shortest);
-        }
-        
-        if (shortest == Double.MAX_VALUE) { shortest = next; }
-
-        for (Entity e: map_entities.keySet())
-        {
-            e.tickDown(shortest - map_tick);
-        }
-        
-        if (map_tick != shortest)
-        {
-            System.out.println(map_tick + " -> " + shortest);
         }
 
         map_tick = shortest;
