@@ -82,7 +82,11 @@ abstract public class Entity
      */
     public abstract Animation defaultAnimation();
 
-
+    public String toString()
+    {
+        return "[" + this.getClass().getSimpleName() + "]";
+    }
+    
     public Vector3i getSize()
     {
         return new Vector3i(this.ent_size_x, this.ent_size_y, this.ent_size_z);
@@ -206,18 +210,18 @@ abstract public class Entity
      * to reach the next set of actions. Only the GameMap should call this.
      * 
      * @param tickDelta the amount of ticks that have passed since the last think call.
-     * @param map       the map that is being thought on.
      * 
      * @return a map corresponding to the next set of actions to call. The Long value
      *          in the map is an absolute tick value.
      */
-    public Map<Mode, Double> think(double tickDelta, GameMap map)
+    public Map<Mode, Double> think(double tickDelta)
     {
         Map<Mode, Double> ret = new HashMap<>();
-        double mapTick = map.getTick();
+        double mapTick = ent_map.getTick();
         double endTick = mapTick + tickDelta;
         
         Set<Map.Entry<Mode, Double>> modes = ent_modes.entrySet();
+        double printTick = Double.MAX_VALUE;
         
         for (Map.Entry<Mode, Double> next: modes)
         {
@@ -229,6 +233,16 @@ abstract public class Entity
             
             updateMode(mode, nextTick);
             ret.put(mode, nextTick);
+            printTick = Math.min(printTick, nextTick);
+        }
+        
+        if (printTick != mapTick && printTick != Double.MAX_VALUE)
+        {
+            for (Map.Entry<Mode, Double> mode: ret.entrySet())
+            {
+                System.out.println(this + mode.getKey().toString() + ": mt = " + mapTick + ", et = " + endTick
+                                 + ", going to " + mode.getValue());
+            }
         }
         
         return ret;

@@ -246,12 +246,14 @@ public class GameMap
         double next = getNextThoughtTick();
         double shortest = map_tick;
         
+        map_tick = next;
+        
         if (map_modeTicks.size() == 0) { return map_tick; }
         else { shortest = next; }
         
         for (Entity e: map_entities.keySet())
         {
-            Map<Mode, Double> responseModes = e.think(next - map_tick, this);
+            Map<Mode, Double> responseModes = e.think(next - map_tick);
             newModes.putAll(responseModes);
         }
         
@@ -267,14 +269,25 @@ public class GameMap
             
             if (showModes)
             {
-                System.out.println("State of map_modeTicks on tick " + map_tick + " (next is " + next + "):");
-                
+                System.out.println();
                 for (Map.Entry<Mode, Double> k: map_modeTicks.entrySet())
                 {
-                    System.out.println("  " + k.getKey() + " -> " + k.getValue()
-                                    + " (going to " + newModes.get(k.getKey()) + ")");
+                    Mode   m = k.getKey();
+                    Double t = k.getValue();
+                    
+                    System.out.print(map_tick + ": " + m + " on tic " + t + " ");
+                    
+                    if (newModes.containsKey(m))
+                    {
+                        System.out.print("(going to " + newModes.get(m) + ")");
+                    }
+                    else
+                    {
+                        System.out.print("(going nowhere)");
+                    }
+                    
+                    System.out.println("    shortest = " + shortest);
                 }
-                
                 System.out.println();
             }
         }
