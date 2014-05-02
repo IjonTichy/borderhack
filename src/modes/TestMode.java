@@ -12,6 +12,7 @@ public class TestMode extends Mode
     @Override
     public double defaultAction()
     {
+        System.out.println("Tick " + this.m_controller.getMap().getTick() + " is dumb");
         return 0.25;
     }
 }
