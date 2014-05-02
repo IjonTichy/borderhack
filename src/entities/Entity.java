@@ -235,10 +235,10 @@ abstract public class Entity
         double mapTick = ent_map.getTick();
         double endTick = mapTick + tickDelta;
         
-        Set<Entry<Mode, Double>> modes = ent_modes.entrySet();
+        Map<Mode, Double> modes = new HashMap<>(ent_modes);
         double printTick = Double.MAX_VALUE;
         
-        for (Entry<Mode, Double> next: modes)
+        for (Entry<Mode, Double> next: modes.entrySet())
         {
             Mode   mode = next.getKey();
             Double time = next.getValue();
