@@ -22,7 +22,7 @@ abstract public class Mode
     
     public Mode(Entity e)
     {
-        m_controller = e;
+        setController(e);
         m_nextaction = null;
         m_controls   = new ArrayList<>();
     }
@@ -30,6 +30,19 @@ abstract public class Mode
     public String toString()
     {
         return "<" + this.getClass().getSimpleName() + ">";
+    }
+    
+    public void setController(Entity e)
+    {
+        if (e == m_controller) { return; }
+        Entity old = m_controller;
+        
+        m_controller = e;
+        
+        if (old != null)
+        {
+            old.removeMode(this);
+        }
     }
     
     protected Method getAction(String actionName) throws ActionUnavailableException
@@ -94,14 +107,19 @@ abstract public class Mode
         return doaction(getCurrentAction());
     }
     
-    protected Double doaction(Method action)
+    protected double doaction(Method action)
     {
-        Double result = null;
-        if (m_controller == null) { return null; } // can't do something to nothing
+        double result = 0;
+        if (m_controller == null)
+        {
+            System.err.println("ERROR: in doaction, Mode " + this + " has no entity controller");
+            System.err.println("Aborting.");
+            System.exit(1);
+        }
         
         try
         {
-            result = (Double)action.invoke(this);
+            result = (double)action.invoke(this);
             clearControls();
         }
         catch (IllegalArgumentException e)

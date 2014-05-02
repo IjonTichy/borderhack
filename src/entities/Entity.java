@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import map.GameMap;
@@ -202,6 +203,20 @@ abstract public class Entity
     public void updateMode(Mode m, double t)
     {
         ent_modes.put(m, t);
+        m.setController(this);
+    }
+    
+    /**
+     * Removes a mode from an entity. Automatically called by Modes when they
+     * switch controllers.
+     * 
+     * @param m     the mode to remove.
+     * @return nothing.
+     */
+    public void removeMode(Mode m)
+    {
+        ent_modes.remove(m);
+        if (m.getController() == this) { m.setController(null); }
     }
 
     /**
@@ -220,29 +235,21 @@ abstract public class Entity
         double mapTick = ent_map.getTick();
         double endTick = mapTick + tickDelta;
         
-        Set<Map.Entry<Mode, Double>> modes = ent_modes.entrySet();
+        Set<Entry<Mode, Double>> modes = ent_modes.entrySet();
         double printTick = Double.MAX_VALUE;
         
-        for (Map.Entry<Mode, Double> next: modes)
+        for (Entry<Mode, Double> next: modes)
         {
             Mode   mode = next.getKey();
             Double time = next.getValue();
             
             if (time == null || time > endTick) { continue; }
+            
             double nextTick = mapTick + mode.act();
             
             updateMode(mode, nextTick);
             ret.put(mode, nextTick);
             printTick = Math.min(printTick, nextTick);
-        }
-        
-        if (printTick != mapTick && printTick != Double.MAX_VALUE)
-        {
-            for (Map.Entry<Mode, Double> mode: ret.entrySet())
-            {
-                System.out.println(this + mode.getKey().toString() + ": mt = " + mapTick + ", et = " + endTick
-                                 + ", going to " + mode.getValue());
-            }
         }
         
         return ret;
