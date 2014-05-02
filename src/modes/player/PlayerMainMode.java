@@ -30,8 +30,8 @@ public class PlayerMainMode extends Mode
         GameMap map = m_controller.getMap();
         double tick;
         
-        if (map == null) { tick = 0; }
-        else { tick = map.getTick(); }
+        if (map == null) { return 0; }
+        tick = map.getTick();
 
         pollMovement();
         doInvCheck(tick, map);
@@ -68,6 +68,8 @@ public class PlayerMainMode extends Mode
         int yoff = nextDir.y;
         
         MovementMode blocksMoved = m_controller.move(new Vector2i(xoff, yoff));
+        m_controller.updateMode(blocksMoved, m_controller.getMap().getTick());
+        
         if (blocksMoved == null) { return 0; }
         return Math.max(0, blocksMoved.positions().size() - 1);
     }

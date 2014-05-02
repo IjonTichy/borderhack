@@ -42,7 +42,8 @@ public class MovementMode extends Mode
     public double defaultAction()
     {
         // TODO Auto-generated method stub
-        return 0;
+        System.out.println("I AM THE BANE OF YOUR EXISTENCE.");
+        return 0.5;
     }
     
 }
